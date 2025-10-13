@@ -136,13 +136,13 @@ export default function MainPartyData() {
                                         <td>{party.time}</td>
                                         <td>{party.address}</td>
                                         <td>
+                                            <button className="deleteBtn" onClick={() => confirmDelete(index)}>
+                                                <MdDelete />
+                                            </button>
                                             <button className="editBtn">
                                                 <Link to="/AddInvitors" state={{ partyId: party?.id }}>
                                                     <BsDatabaseAdd />
                                                 </Link>
-                                            </button>
-                                            <button className="deleteBtn" onClick={() => confirmDelete(index)}>
-                                                <MdDelete />
                                             </button>
                                         </td>
                                     </tr>
