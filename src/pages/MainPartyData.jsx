@@ -86,7 +86,7 @@ export default function MainPartyData() {
         <main className="mainOfMainPartyData">
             <div className="addParty">
                 <button className="addBtn">
-                    <Link to="/createnewparty">+ إضافة حفل جديد</Link>
+                    <Link to="/createnewparty"> إضافة حفل جديد</Link>
                 </button>
                 <div>
                     <Link to="/mainpartydata">
@@ -94,6 +94,9 @@ export default function MainPartyData() {
                     </Link>
                 </div>
                 <div className="search">
+                    <button className="searchBtn" onClick={handleSearch}>
+                        Search
+                    </button>
                     <input
                         type="search"
                         placeholder="ادخل اسم الحفلة"
@@ -106,9 +109,6 @@ export default function MainPartyData() {
                             }
                         }}
                     />
-                    <button className="searchBtn" onClick={handleSearch}>
-                        بحث
-                    </button>
                 </div>
             </div>
 
@@ -125,7 +125,7 @@ export default function MainPartyData() {
                                 <th>اسم الحفلة</th>
                                 <th>ميعاد الحفلة</th>
                                 <th>عنوان الحفلة</th>
-                                <th>اضافة مدعويين وحذف الحفلة</th>
+                                <th>#####</th>
                             </tr>
                         </thead>
                         <tbody>

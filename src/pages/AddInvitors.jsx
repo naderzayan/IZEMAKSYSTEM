@@ -12,9 +12,10 @@ export default function AddInvitors() {
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+
     const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
-    const partyId =location.state?.partyId ?? query.get("partyId");
-    
+    const partyId = location.state?.partyId ?? query.get("partyId");
 
     useEffect(() => {
         if (!partyId) return;
@@ -49,6 +50,13 @@ export default function AddInvitors() {
         }
         if (!name || !phone || !invites) return;
 
+        // ✅ check if phone already exists
+        const isDuplicate = guests.some((guest) => guest.phoneNumber === phone);
+        if (isDuplicate) {
+            setShowDuplicateWarning(true);
+            return;
+        }
+
         setSaving(true);
         setError(null);
         try {
@@ -79,6 +87,15 @@ export default function AddInvitors() {
 
     return (
         <main className="mainOfAddInvitors">
+            {showDuplicateWarning && (
+                <div className="overlay">
+                    <div className="warningBox">
+                        <p>هذا الرقم مسجل بالفعل</p>
+                        <button onClick={() => setShowDuplicateWarning(false)}>تعديل</button>
+                    </div>
+                </div>
+            )}
+
             <div className="sideBar">
                 <Link to="/invitorspage" state={{ partyId }}>
                     <h1>قائمة المدعوين</h1>
@@ -98,6 +115,7 @@ export default function AddInvitors() {
                     )}
                 </ul>
             </div>
+
             <div className="addDetailis">
                 {error && <p className="error">{error}</p>}
                 <Link to="/mainpartydata">

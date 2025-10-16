@@ -136,34 +136,38 @@ export default function InvitorsPage() {
         }
     };
 
-    const handleExportExcel = () => {
-        const dataForExcel = invitors.map((item) => ({
-            "اسم المدعو": item.name,
-            "رقم الهاتف": item.phoneNumber,
-            الحالة: item.status,
-        }));
-        const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Invitors");
-        XLSX.writeFile(workbook, "invitors.xlsx");
-    };
+const handleExportExcel = () => {
+    const dataForExcel = invitors.map((item) => ({
+        "اسم المدعو": item.name,
+        "رقم الهاتف": item.phoneNumber,
+        الحالة: item.status,
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Invitors");
 
-    const handleExportPDF = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(16);
-        doc.text("قائمة المدعوين", 14, 15);
+    const fileName = `${partyId || "party"}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+};
 
-        const tableColumn = ["اسم المدعو", "رقم الهاتف", "الحالة"];
-        const tableRows = invitors.map((item) => [item.name, item.phoneNumber, item.status]);
+const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("قائمة المدعوين", 14, 15);
 
-        autoTable(doc, {
-            head: [tableColumn],
-            body: tableRows,
-            startY: 25,
-        });
+    const tableColumn = ["اسم المدعو", "رقم الهاتف", "الحالة"];
+    const tableRows = invitors.map((item) => [item.name, item.phoneNumber, item.status]);
 
-        doc.save("invitors.pdf");
-    };
+    autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 25,
+    });
+
+    const fileName = `${partyId || "party"}.pdf`;
+    doc.save(fileName);
+};
+
 
     const filteredInvitors = invitors.filter((invitor) => (statusFilter === "All" ? true : invitor.status === statusFilter.toLowerCase()));
 
@@ -238,29 +242,38 @@ export default function InvitorsPage() {
                 </table>
             )}
 
-            {showConfirm && (
-                <div className="confirmOverlay">
-                    <div className="confirmBox">
-                        <p>هل متأكد من الحذف؟</p>
-                        <div className="confirmBtns">
-                            <button onClick={confirmDelete}>نعم</button>
-                            <button onClick={cancelDelete}>لا</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+{showConfirm && (
+    <div className="confirmOverlay">
+        <div className="confirmBox">
+            <p> هل متأكد من حذف {selectedInvitor?.name} ؟</p>
+            <div className="confirmBtns">
+                <button onClick={confirmDelete}>نعم</button>
+                <button onClick={cancelDelete}>لا</button>
+            </div>
+        </div>
+    </div>
+)}
 
-            {showBulkDeleteConfirm && (
-                <div className="confirmOverlay">
-                    <div className="confirmBox">
-                        <p>هل متأكد من الحذف ؟</p>
-                        <div className="confirmBtns">
-                            <button onClick={handleBulkDelete}>نعم</button>
-                            <button onClick={() => setShowBulkDeleteConfirm(false)}>لا</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+
+{showBulkDeleteConfirm && (
+    <div className="confirmOverlay">
+        <div className="confirmBox">
+            <p>
+                هل متأكد من حذف{" "}
+                {
+                    invitors.filter((invitor) => invitor.selected).length
+                }{" "}
+                مدعو{invitors.filter((invitor) => invitor.selected).length !== 1 ? "" : ""}
+                ؟
+            </p>
+            <div className="confirmBtns">
+                <button onClick={handleBulkDelete}>نعم</button>
+                <button onClick={() => setShowBulkDeleteConfirm(false)}>لا</button>
+            </div>
+        </div>
+    </div>
+)}
+
 
             {showChangeStatusBox && (
                 <div className="confirmOverlay">

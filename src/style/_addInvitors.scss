@@ -129,3 +129,57 @@
         }
     }
 }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.warningBox {
+  background: #fff;
+  color: #333;
+  padding: 2rem 3rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: popIn 0.3s ease;
+}
+
+.warningBox p {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.warningBox button {
+  background: #7a6b88;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.warningBox button:hover {
+  background: #dbcce9;
+  color: #000;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
