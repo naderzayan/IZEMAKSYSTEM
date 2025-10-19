@@ -135,7 +135,7 @@ export default function MainPartyData() {
                             {parties.length > 0 ? (
                                 parties.map((party, index) => (
                                     <tr key={index}>
-                                        <td>{party.name} <FaRegEdit /></td> 
+                                        <td>{party.name} <button className="EditButton"><FaRegEdit /></button></td> 
                                         <td>{party.time}</td>
                                         <td>{party.address}</td>
                                         <td>
