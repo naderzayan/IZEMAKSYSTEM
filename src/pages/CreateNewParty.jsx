@@ -9,7 +9,7 @@ export default function CreateNewParty() {
     const [partyName, setPartyName] = useState("");
     const [partyDate, setPartyDate] = useState("");
     const [partyPlace, setPartyPlace] = useState("");
-    const [invitation, setInvitation] = useState("both"); // ✅ القيمة الافتراضية ثابتة
+    const [invitation, setInvitation] = useState("both");
     const [invitationText, setInvitationText] = useState("");
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -64,7 +64,6 @@ export default function CreateNewParty() {
                 <form className="formContainer" onSubmit={handleSubmit}>
                     <div className="dataOfNewParty">
                         <select value={invitation} onChange={(e) => setInvitation(e.target.value)} required>
-                            {/* ✅ شيلنا "-- اختر طريقة ارسال الدعوة --" */}
                             <option value="invitation">ارسال الدعوة فقط</option>
                             <option value="invitationWithQuestion">ارسال الدعوة مع السؤال</option>
                             <option value="both">ارسال الدعوة ورمز الدخول مع السؤال</option>

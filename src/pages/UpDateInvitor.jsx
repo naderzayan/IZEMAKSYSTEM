@@ -45,11 +45,6 @@ export default function UpDateInvitor() {
 
     return (
         <main className="mainOfUpDateInvitor">
-            <div>
-                <Link to="/mainpartydata">
-                    <img src="/اعزمك-01.png" alt="" />
-                </Link>
-            </div>
             <h1>تعديل البيانات</h1>
             <form onSubmit={handleSubmit}>
                 <div className="details">

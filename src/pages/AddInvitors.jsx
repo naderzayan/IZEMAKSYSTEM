@@ -13,6 +13,7 @@ export default function AddInvitors() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+    const partyName = location.state?.partyName ?? "";
 
     const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
     const partyId = location.state?.partyId ?? query.get("partyId");
@@ -50,7 +51,6 @@ export default function AddInvitors() {
         }
         if (!name || !phone || !invites) return;
 
-        // ✅ check if phone already exists
         const isDuplicate = guests.some((guest) => guest.phoneNumber === phone);
         if (isDuplicate) {
             setShowDuplicateWarning(true);
@@ -118,10 +118,7 @@ export default function AddInvitors() {
 
             <div className="addDetailis">
                 {error && <p className="error">{error}</p>}
-                <Link to="/mainpartydata">
-                    <img src="/اعزمك-01.png" alt="" />
-                </Link>
-                <h2>أدخل بيانات المدعو</h2>
+                <h2>{partyName}</h2>
                 <div className="name">
                     <label>الاسم</label>
                     <input type="text" placeholder="الاسم" value={name} onChange={(e) => setName(e.target.value)} />

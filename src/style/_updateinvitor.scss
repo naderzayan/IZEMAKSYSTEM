@@ -1,6 +1,6 @@
 .mainOfUpDateInvitor {
     background: #dbcce9;
-    height: 110vh;
+    height: 100vh;
     padding: 2.5em;
     display: flex;
     flex-direction: column;
@@ -43,10 +43,13 @@
     }
     .submit {
         padding: 1em;
+        padding-bottom: 8em;
+        display: flex;
+        justify-content: center;
     }
     button {
         height: 2.5em;
-        width: 100%;
+        width: 50%;
         font-size: 20px;
         background: #7A6B88;
         color: #fff;

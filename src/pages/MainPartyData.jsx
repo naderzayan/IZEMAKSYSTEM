@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../style/_mainPartyData.scss";
-import { BsDatabaseAdd } from "react-icons/bs";
+import { FaUserEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import Footer from "../components/Footer";
 
@@ -88,14 +88,9 @@ export default function MainPartyData() {
                 <button className="addBtn">
                     <Link to="/createnewparty"> إضافة حفل جديد</Link>
                 </button>
-                <div>
-                    <Link to="/mainpartydata">
-                        <img src="/اعزمك-01.png" alt="" />
-                    </Link>
-                </div>
                 <div className="search">
                     <button className="searchBtn" onClick={handleSearch}>
-                        Search
+                        بحث
                     </button>
                     <input
                         type="search"
@@ -109,6 +104,11 @@ export default function MainPartyData() {
                             }
                         }}
                     />
+                </div>
+                <div>
+                    <Link to="/mainpartydata">
+                        <img src="/اعزمك-01.png" alt="" />
+                    </Link>
                 </div>
             </div>
 
@@ -125,7 +125,7 @@ export default function MainPartyData() {
                                 <th>اسم الحفلة</th>
                                 <th>ميعاد الحفلة</th>
                                 <th>عنوان الحفلة</th>
-                                <th>#####</th>
+                                <th>الحذف والتعديل/إضافة</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -140,9 +140,10 @@ export default function MainPartyData() {
                                                 <MdDelete />
                                             </button>
                                             <button className="editBtn">
-                                                <Link to="/AddInvitors" state={{ partyId: party?.id }}>
-                                                    <BsDatabaseAdd />
+                                                <Link to="/AddInvitors" state={{ partyId: party?.id, partyName: party?.name }}>
+                                                <FaUserEdit />
                                                 </Link>
+
                                             </button>
                                         </td>
                                     </tr>

@@ -185,14 +185,14 @@ const handleExportPDF = () => {
                             <option>Faild</option>
                         </select>
                     </div>
+                    <div className="search">
+                        <input type="text" placeholder="ادخل اسم المدعو" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} />
+                        <button onClick={handleSearch}>بحث</button>
+                    </div>
                     <div>
                         <Link to="/mainpartydata">
                             <img src="/اعزمك-01.png" alt="" className="logo" />
                         </Link>
-                    </div>
-                    <div className="search">
-                        <input type="text" placeholder="ادخل اسم المدعو" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} />
-                        <button onClick={handleSearch}>بحث</button>
                     </div>
                 </div>
             </header>
@@ -218,13 +218,13 @@ const handleExportPDF = () => {
                                     <td>{invitor.status}</td>
                                     <td>
                                         <div className="icons">
+                                            <button className="deleteBtn" onClick={() => handleDeleteClick(invitor)}>
+                                                <MdDelete />
+                                            </button>
                                             <button className="editBtn">
                                                 <Link to="/updateinvitor" state={invitor}>
                                                     <FaUserEdit />
                                                 </Link>
-                                            </button>
-                                            <button className="deleteBtn" onClick={() => handleDeleteClick(invitor)}>
-                                                <MdDelete />
                                             </button>
                                             <input type="checkbox" checked={invitor.selected} onChange={() => handleCheckboxChange(invitor.id)} />
                                         </div>
