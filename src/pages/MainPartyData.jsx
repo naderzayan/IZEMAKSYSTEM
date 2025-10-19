@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import "../style/_mainPartyData.scss";
 import { FaUserEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import { IoSearchSharp } from "react-icons/io5";
+import { FaRegEdit } from "react-icons/fa";
 import Footer from "../components/Footer";
 
 export default function MainPartyData() {
@@ -92,6 +94,7 @@ export default function MainPartyData() {
                     <button className="searchBtn" onClick={handleSearch}>
                         بحث
                     </button>
+                    <IoSearchSharp />
                     <input
                         type="search"
                         placeholder="ادخل اسم الحفلة"
@@ -132,7 +135,7 @@ export default function MainPartyData() {
                             {parties.length > 0 ? (
                                 parties.map((party, index) => (
                                     <tr key={index}>
-                                        <td>{party.name}</td>
+                                        <td>{party.name} <FaRegEdit /></td> 
                                         <td>{party.time}</td>
                                         <td>{party.address}</td>
                                         <td>

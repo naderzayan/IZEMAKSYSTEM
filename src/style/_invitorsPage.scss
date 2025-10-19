@@ -25,11 +25,16 @@
       .search {
         display: flex;
         gap: .5em;
+        svg {
+          // font-size: 20px;
+          transform: translate(-2rem,.5rem);
+        }
       }
 
       input {
         border: 1px solid #000;
         padding: 8px 12px;
+        padding-inline-start: 2em;
         border-radius: .5em;
         height: 2.5em;
       }

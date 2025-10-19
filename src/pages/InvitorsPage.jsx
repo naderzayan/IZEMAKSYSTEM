@@ -9,6 +9,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Footer from "../components/Footer";
+import { IoIosSearch } from "react-icons/io";
 
 export default function InvitorsPage() {
     const location = useLocation();
@@ -186,8 +187,9 @@ const handleExportPDF = () => {
                         </select>
                     </div>
                     <div className="search">
-                        <input type="text" placeholder="ادخل اسم المدعو" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} />
                         <button onClick={handleSearch}>بحث</button>
+                        <IoIosSearch />
+                        <input type="text" placeholder="ادخل اسم المدعو" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} />
                     </div>
                     <div>
                         <Link to="/mainpartydata">

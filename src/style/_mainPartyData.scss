@@ -44,11 +44,16 @@
   .search {
     display: flex;
     gap: 0.5rem;
+    svg {
+      // font-size: 20px;
+      transform: translate(-2rem,.5rem);
+    }
 
     input {
       padding: 0.5rem;
       border: 1px solid #7A6B88;
       border-radius: 5px;
+      padding-inline-start: 2em;
     }
 
     .searchBtn {
