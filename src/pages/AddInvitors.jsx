@@ -12,7 +12,9 @@ export default function AddInvitors() {
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+    const [showDuplicateConfirm, setShowDuplicateConfirm] = useState(false);
+    const [duplicatePayload, setDuplicatePayload] = useState(null);
+
     const partyName = location.state?.partyName ?? "";
 
     const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
@@ -52,29 +54,28 @@ export default function AddInvitors() {
         if (!name || !phone || !invites) return;
 
         const isDuplicate = guests.some((guest) => guest.phoneNumber === phone);
+        const formData = new FormData();
+        formData.append("Party_id", partyId);
+        formData.append("name", name);
+        formData.append("phoneNumber", phone);
+        formData.append("maxScan", invites);
+
         if (isDuplicate) {
-            setShowDuplicateWarning(true);
+            setDuplicatePayload(formData);
+            setShowDuplicateConfirm(true);
             return;
         }
 
         setSaving(true);
         setError(null);
         try {
-            const formData = new FormData();
-            formData.append("Party_id", partyId);
-            formData.append("name", name);
-            formData.append("phoneNumber", phone);
-            formData.append("maxScan", invites);
-
             const res = await fetch("https://www.izemak.com/azimak/public/api/addinvitor", {
                 method: "POST",
                 body: formData,
             });
 
             if (!res.ok) throw new Error("error not added");
-
             window.location.reload();
-
             setName("");
             setPhone("");
             setInvites("");
@@ -85,13 +86,42 @@ export default function AddInvitors() {
         }
     };
 
+    const handleResendDuplicate = async () => {
+        if (!duplicatePayload) return;
+        setSaving(true);
+        setError(null);
+        try {
+            const res = await fetch("https://www.izemak.com/azimak/public/api/addinvitor/confirm", {
+                method: "POST",
+                body: duplicatePayload,
+            });
+
+            if (!res.ok) throw new Error("error on confirm");
+
+            setShowDuplicateConfirm(false);
+            window.location.reload();
+            setName("");
+            setPhone("");
+            setInvites("");
+        } catch (err) {
+            setError(err.message || "error");
+            setShowDuplicateConfirm(false);
+        } finally {
+            setSaving(false);
+            setDuplicatePayload(null);
+        }
+    };
+
     return (
         <main className="mainOfAddInvitors">
-            {showDuplicateWarning && (
+            {showDuplicateConfirm && (
                 <div className="overlay">
                     <div className="warningBox">
-                        <p>هذا الرقم مسجل بالفعل</p>
-                        <button onClick={() => setShowDuplicateWarning(false)}>تعديل</button>
+                        <p>الرقم مكرر هل تريد إضافته؟</p>
+                        <div className="warningActions">
+                            <button type="button" onClick={handleResendDuplicate} disabled={saving} className="confirmBtn"> إرسال </button>
+                            <button type="button" onClick={() => { setShowDuplicateConfirm(false); setDuplicatePayload(null); }} className="cancelBtn" > إلغاء </button>
+                        </div>
                     </div>
                 </div>
             )}
