@@ -190,3 +190,39 @@
     justify-content: center;
     gap: 1.5em;
 }
+
+/* 🔄 Spinner أثناء تحميل البيانات */
+.loadingSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #dbcce9;
+  border-top: 6px solid #7a6b88;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.loadingSpinner p {
+  font-weight: 600;
+  color: #7a6b88;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

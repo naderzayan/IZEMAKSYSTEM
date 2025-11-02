@@ -20,11 +20,11 @@ export default function AddInvitors() {
   const [excelCount, setExcelCount] = useState(null);
   const [showDuplicatesPopup, setShowDuplicatesPopup] = useState(false);
   const [duplicates, setDuplicates] = useState([]);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const partyName = location.state?.partyName ?? "";
   const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const partyId = location.state?.partyId ?? query.get("partyId");
-
 
   useEffect(() => {
     if (!partyId) return;
@@ -49,7 +49,6 @@ export default function AddInvitors() {
       cancelled = true;
     };
   }, [partyId]);
-
 
   const handleAddGuest = async () => {
     if (!partyId) return alert("error ?partyId=ID");
@@ -102,7 +101,6 @@ export default function AddInvitors() {
     }
   };
 
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -148,6 +146,7 @@ export default function AddInvitors() {
         body: formData,
       });
       const data = await res.json();
+
       if (Array.isArray(data.data)) {
         const existingPhones = new Set(guests.map((g) => g.phoneNumber));
         const duplicatesList = data.data.filter((p) => existingPhones.has(p.phoneNumber));
@@ -160,20 +159,25 @@ export default function AddInvitors() {
           return;
         }
       }
+
       const confirmRes = await fetch("https://www.izemak.com/azimak/public/api/addexcel/confirm", {
         method: "POST",
         body: formData,
       });
       const confirmData = await confirmRes.json();
       setShowExcelCount(false);
-      alert("تم إضافة بنجاح ");
-      window.location.reload();
+      setShowSuccessPopup(true);
+      setTimeout(() => {
+        setShowSuccessPopup(false);
+        window.location.reload();
+      }, 3000);
     } catch (err) {
       setError(err.message || "error confirming file");
     } finally {
       setSaving(false);
     }
   };
+
   return (
     <main className="mainOfAddInvitors">
       {showDuplicateConfirm && (
@@ -187,10 +191,11 @@ export default function AddInvitors() {
           </div>
         </div>
       )}
+
       {showExcelConfirm && (
         <div className="overlay">
           <div className="warningBox">
-            <p>هل أنت متأكد ؟  </p>
+            <p>هل أنت متأكد ؟</p>
             <div className="warningActions">
               <button onClick={handleExcelUpload} disabled={saving} className="confirmBtn">إرسال</button>
               <button onClick={() => setShowExcelConfirm(false)} className="cancelBtn">إلغاء</button>
@@ -198,6 +203,7 @@ export default function AddInvitors() {
           </div>
         </div>
       )}
+
       {showExcelCount && (
         <div className="overlay">
           <div className="warningBox">
@@ -209,6 +215,7 @@ export default function AddInvitors() {
           </div>
         </div>
       )}
+
       {showDuplicatesPopup && (
         <div className="overlay">
           <div className="warningBox">
@@ -233,8 +240,14 @@ export default function AddInvitors() {
                     });
                     const confirmData = await confirmRes.json();
                     console.log(" forced confirm:", confirmData);
-                    alert("your work have been saved ");
-                    window.location.reload();
+
+                    setShowDuplicatesPopup(false);
+                    setShowSuccessPopup(true);
+                    setTimeout(() => {
+                      setShowSuccessPopup(false);
+                      window.location.reload();
+                    }, 1000);
+
                   } catch (err) {
                     setError(err.message || "حدث خطأ أثناء الإرسال");
                   } finally {
@@ -259,6 +272,14 @@ export default function AddInvitors() {
                 إلغاء
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showSuccessPopup && (
+        <div className="overlay">
+          <div className="warningBox successBox">
+            <p> Your work has been saved successfully</p>
           </div>
         </div>
       )}
