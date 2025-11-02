@@ -51,9 +51,9 @@ export default function CreateNewParty() {
 
     return (
         <main className="mainOfCreateNewParty">
-            {/* <Link to="/mainpartydata">
+            <Link to="/mainpartydata">
                 <img src="/اعزمك-01.png" alt="" />
-            </Link> */}
+            </Link>
             <h1 className="title">إضافة حفل جديد</h1>
 
             {loading ? (

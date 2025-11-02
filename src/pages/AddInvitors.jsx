@@ -4,181 +4,318 @@ import { Link, useLocation } from "react-router-dom";
 import Footer from "../components/Footer";
 
 export default function AddInvitors() {
-    const location = useLocation();
-    const [guests, setGuests] = useState([]);
-    const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [invites, setInvites] = useState("");
-    const [saving, setSaving] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [showDuplicateConfirm, setShowDuplicateConfirm] = useState(false);
-    const [duplicatePayload, setDuplicatePayload] = useState(null);
+  const location = useLocation();
+  const [guests, setGuests] = useState([]);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [invites, setInvites] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showDuplicateConfirm, setShowDuplicateConfirm] = useState(false);
+  const [duplicatePayload, setDuplicatePayload] = useState(null);
+  const [excelFile, setExcelFile] = useState(null);
+  const [showExcelConfirm, setShowExcelConfirm] = useState(false);
+  const [showExcelCount, setShowExcelCount] = useState(false);
+  const [excelCount, setExcelCount] = useState(null);
+  const [showDuplicatesPopup, setShowDuplicatesPopup] = useState(false);
+  const [duplicates, setDuplicates] = useState([]);
 
-    const partyName = location.state?.partyName ?? "";
+  const partyName = location.state?.partyName ?? "";
+  const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const partyId = location.state?.partyId ?? query.get("partyId");
 
-    const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
-    const partyId = location.state?.partyId ?? query.get("partyId");
 
-    useEffect(() => {
-        if (!partyId) return;
-        let cancelled = false;
+  useEffect(() => {
+    if (!partyId) return;
+    let cancelled = false;
 
-        const fetchGuests = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const res = await fetch(`https://www.izemak.com/azimak/public/api/party/${partyId}`);
-                if (!res.ok) throw new Error("No Data Added");
-                const data = await res.json();
-                const arr = data?.data.members ?? [];
-                if (!cancelled) setGuests(arr);
-            } catch (err) {
-                if (!cancelled) setError(err.message || "error");
-            } finally {
-                if (!cancelled) setLoading(false);
-            }
-        };
-
-        fetchGuests();
-        return () => {
-            cancelled = true;
-        };
-    }, [partyId]);
-
-    const handleAddGuest = async () => {
-        if (!partyId) {
-            alert("error ?partyId=ID");
-            return;
-        }
-        if (!name || !phone || !invites) return;
-
-        const isDuplicate = guests.some((guest) => guest.phoneNumber === phone);
-        const formData = new FormData();
-        formData.append("Party_id", partyId);
-        formData.append("name", name);
-        formData.append("phoneNumber", phone);
-        formData.append("maxScan", invites);
-
-        if (isDuplicate) {
-            setDuplicatePayload(formData);
-            setShowDuplicateConfirm(true);
-            return;
-        }
-
-        setSaving(true);
-        setError(null);
-        try {
-            const res = await fetch("https://www.izemak.com/azimak/public/api/addinvitor", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!res.ok) throw new Error("error not added");
-            window.location.reload();
-            setName("");
-            setPhone("");
-            setInvites("");
-        } catch (err) {
-            setError(err.message || "error");
-        } finally {
-            setSaving(false);
-        }
+    const fetchGuests = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`https://www.izemak.com/azimak/public/api/party/${partyId}`);
+        if (!res.ok) throw new Error("No Data Added");
+        const data = await res.json();
+        const arr = data?.data.members ?? [];
+        if (!cancelled) setGuests(arr);
+      } catch (err) {
+        if (!cancelled) setError(err.message || "error");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
-
-    const handleResendDuplicate = async () => {
-        if (!duplicatePayload) return;
-        setSaving(true);
-        setError(null);
-        try {
-            const res = await fetch("https://www.izemak.com/azimak/public/api/addinvitor/confirm", {
-                method: "POST",
-                body: duplicatePayload,
-            });
-
-            if (!res.ok) throw new Error("error on confirm");
-
-            setShowDuplicateConfirm(false);
-            window.location.reload();
-            setName("");
-            setPhone("");
-            setInvites("");
-        } catch (err) {
-            setError(err.message || "error");
-            setShowDuplicateConfirm(false);
-        } finally {
-            setSaving(false);
-            setDuplicatePayload(null);
-        }
+    fetchGuests();
+    return () => {
+      cancelled = true;
     };
+  }, [partyId]);
 
-    return (
-        <main className="mainOfAddInvitors">
-            {showDuplicateConfirm && (
-                <div className="overlay">
-                    <div className="warningBox">
-                        <p>الرقم مكرر هل تريد إضافته؟</p>
-                        <div className="warningActions">
-                            <button type="button" onClick={handleResendDuplicate} disabled={saving} className="confirmBtn"> إرسال </button>
-                            <button type="button" onClick={() => { setShowDuplicateConfirm(false); setDuplicatePayload(null); }} className="cancelBtn" > إلغاء </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
-            <div className="sideBar">
-                <Link to="/invitorspage" state={{ partyId }}>
-                    <h1>قائمة المدعوين</h1>
-                </Link>
-                <ul>
-                    {loading ? (
-                        <p className="loading"> جاري تحميل البيانات...</p>
-                    ) : !Array.isArray(guests) || guests.length === 0 ? (
-                        <p>No Data Yet</p>
-                    ) : (
-                        guests.map((guest, idx) => (
-                            <li key={idx}>
-                                <span>{guest.name}</span>
-                                <span>{guest.status ?? ""}</span>
-                            </li>
-                        ))
-                    )}
-                </ul>
+  const handleAddGuest = async () => {
+    if (!partyId) return alert("error ?partyId=ID");
+    if (!name || !phone || !invites) return;
+
+    const isDuplicate = guests.some((guest) => guest.phoneNumber === phone);
+    const formData = new FormData();
+    formData.append("Party_id", partyId);
+    formData.append("name", name);
+    formData.append("phoneNumber", phone);
+    formData.append("maxScan", invites);
+
+    if (isDuplicate) {
+      setDuplicatePayload(formData);
+      setShowDuplicateConfirm(true);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("https://www.izemak.com/azimak/public/api/addinvitor", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("error not added");
+      window.location.reload();
+    } catch (err) {
+      setError(err.message || "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleResendDuplicate = async () => {
+    if (!duplicatePayload) return;
+    setSaving(true);
+    try {
+      const res = await fetch("https://www.izemak.com/azimak/public/api/addinvitor/confirm", {
+        method: "POST",
+        body: duplicatePayload,
+      });
+      if (!res.ok) throw new Error("error on confirm");
+      window.location.reload();
+    } catch (err) {
+      setError(err.message || "error");
+    } finally {
+      setSaving(false);
+      setDuplicatePayload(null);
+      setShowDuplicateConfirm(false);
+    }
+  };
+
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setExcelFile(file);
+      setShowExcelConfirm(true);
+    }
+  };
+
+  const handleExcelUpload = async () => {
+    if (!excelFile || !partyId) return;
+    setSaving(true);
+    const formData = new FormData();
+    formData.append("Party_id", partyId);
+    formData.append("file", excelFile);
+
+    try {
+      const res = await fetch("https://www.izemak.com/azimak/public/api/addexcel", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      const count = Array.isArray(data.data) ? data.data.length : 0;
+      setExcelCount(count);
+      setShowExcelConfirm(false);
+      setShowExcelCount(true);
+    } catch (err) {
+      setError(err.message || "error uploading file");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleExcelConfirm = async () => {
+    if (!excelFile || !partyId) return;
+    setSaving(true);
+    const formData = new FormData();
+    formData.append("Party_id", partyId);
+    formData.append("file", excelFile);
+
+    try {
+      const res = await fetch("https://www.izemak.com/azimak/public/api/addexcel", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (Array.isArray(data.data)) {
+        const existingPhones = new Set(guests.map((g) => g.phoneNumber));
+        const duplicatesList = data.data.filter((p) => existingPhones.has(p.phoneNumber));
+
+        if (duplicatesList.length > 0) {
+          setDuplicates(duplicatesList);
+          setShowExcelCount(false);
+          setShowDuplicatesPopup(true);
+          setSaving(false);
+          return;
+        }
+      }
+      const confirmRes = await fetch("https://www.izemak.com/azimak/public/api/addexcel/confirm", {
+        method: "POST",
+        body: formData,
+      });
+      const confirmData = await confirmRes.json();
+      setShowExcelCount(false);
+      alert("تم إضافة بنجاح ");
+      window.location.reload();
+    } catch (err) {
+      setError(err.message || "error confirming file");
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <main className="mainOfAddInvitors">
+      {showDuplicateConfirm && (
+        <div className="overlay">
+          <div className="warningBox">
+            <p>الرقم مكرر هل تريد إضافته؟</p>
+            <div className="warningActions">
+              <button onClick={handleResendDuplicate} disabled={saving} className="confirmBtn">إرسال</button>
+              <button onClick={() => { setShowDuplicateConfirm(false); setDuplicatePayload(null); }} className="cancelBtn">إلغاء</button>
             </div>
-
-            <div className="addDetailis">
-                {error && <p className="error">{error}</p>}
-                <h2>{partyName}</h2>
-                <div className="name">
-                    <label>الاسم</label>
-                    <input type="text" placeholder="الاسم" value={name} onChange={(e) => setName(e.target.value)} />
-                </div>
-
-                <div className="phoneNum">
-                    <label>رقم الهاتف</label>
-                    <input type="number" placeholder="رقم الهاتف" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                </div>
-
-                <div className="numOfInvitations">
-                    <label>عدد الدعوات</label>
-                    <input type="number" placeholder="عدد الدعوات" value={invites} onChange={(e) => setInvites(e.target.value)} />
-                </div>
-
-                <div className="buttons">
-                    <div className="addButton">
-                        <button type="button" onClick={handleAddGuest} disabled={saving}>
-                            إضافة
-                        </button>
-                    </div>
-                    <div className="addButton">
-                        <label htmlFor="fileUpload" className="uploadBtn">
-                            رفع ملف
-                        </label>
-                        <input type="file" id="fileUpload" className="inputUpload" />
-                    </div>
-                </div>
-                <Footer />
+          </div>
+        </div>
+      )}
+      {showExcelConfirm && (
+        <div className="overlay">
+          <div className="warningBox">
+            <p>هل أنت متأكد ؟  </p>
+            <div className="warningActions">
+              <button onClick={handleExcelUpload} disabled={saving} className="confirmBtn">إرسال</button>
+              <button onClick={() => setShowExcelConfirm(false)} className="cancelBtn">إلغاء</button>
             </div>
-        </main>
-    );
+          </div>
+        </div>
+      )}
+      {showExcelCount && (
+        <div className="overlay">
+          <div className="warningBox">
+            <p>عدد الأشخاص : {excelCount ?? "?"}</p>
+            <div className="warningActions">
+              <button onClick={handleExcelConfirm} disabled={saving} className="confirmBtn">إرسال</button>
+              <button onClick={() => setShowExcelCount(false)} className="cancelBtn">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDuplicatesPopup && (
+        <div className="overlay">
+          <div className="warningBox">
+            <p>هناك أرقام مكررة:</p>
+            <ul>
+              {duplicates.map((d, idx) => (
+                <li key={idx}>{d.name} - {d.phoneNumber}</li>
+              ))}
+            </ul>
+            <div className="warningActions">
+              <button
+                type="button"
+                onClick={async () => {
+                  setSaving(true);
+                  try {
+                    const formData = new FormData();
+                    formData.append("Party_id", partyId);
+                    formData.append("file", excelFile);
+                    const confirmRes = await fetch("https://www.izemak.com/azimak/public/api/addexcel/confirm", {
+                      method: "POST",
+                      body: formData,
+                    });
+                    const confirmData = await confirmRes.json();
+                    console.log(" forced confirm:", confirmData);
+                    alert("your work have been saved ");
+                    window.location.reload();
+                  } catch (err) {
+                    setError(err.message || "حدث خطأ أثناء الإرسال");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                disabled={saving}
+                className="confirmBtn"
+              >
+                إرسال
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDuplicatesPopup(false);
+                  setDuplicates([]);
+                  setExcelFile(null);
+                }}
+                className="cancelBtn"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="sideBar">
+        <Link to="/invitorspage" state={{ partyId }}>
+          <h1>قائمة المدعوين</h1>
+        </Link>
+        <ul>
+          {loading ? (
+            <p className="loading">جاري تحميل البيانات...</p>
+          ) : !Array.isArray(guests) || guests.length === 0 ? (
+            <p>لا توجد بيانات بعد</p>
+          ) : (
+            guests.map((guest, idx) => (
+              <li key={idx}>
+                <span>{guest.name}</span>
+                <span>{guest.status ?? ""}</span>
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+
+      <div className="addDetailis">
+        <Link to="/mainpartydata">
+          <img src="/اعزمك-01.png" alt="" />
+        </Link>
+        {error && <p className="error">{error}</p>}
+        <h2>{partyName}</h2>
+
+        <div className="name">
+          <label>الاسم</label>
+          <input type="text" placeholder="الاسم" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+
+        <div className="phoneNum">
+          <label>رقم الهاتف</label>
+          <input type="number" placeholder="رقم الهاتف" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        </div>
+
+        <div className="numOfInvitations">
+          <label>عدد الدعوات</label>
+          <input type="number" placeholder="عدد الدعوات" value={invites} onChange={(e) => setInvites(e.target.value)} />
+        </div>
+
+        <div className="buttons">
+          <div className="addButton">
+            <button onClick={handleAddGuest} disabled={saving}>إضافة</button>
+          </div>
+          <div className="addButton">
+            <label htmlFor="fileUpload" className="uploadBtn">رفع ملف</label>
+            <input type="file" id="fileUpload" className="inputUpload" onChange={handleFileChange} />
+          </div>
+        </div>
+        <Footer />
+      </div>
+    </main>
+  );
 }
