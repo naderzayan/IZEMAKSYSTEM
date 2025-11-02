@@ -112,6 +112,7 @@ export default function CreateNewParty() {
                         <input
                             type="text"
                             placeholder="ادخل نص الدعوة"
+                            className="textarea"
                             value={invitationText}
                             onChange={(e) => setInvitationText(e.target.value)}
                         />
