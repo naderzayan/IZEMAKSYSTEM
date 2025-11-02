@@ -70,6 +70,7 @@ export default function CreateNewParty() {
                             <option value="bothwithoutQuestion">ارسال الدعوة مع رمز الدخول بدون سؤال</option>
                             <option value="location">ارسال الموقع</option>
                             <option value="qr">ارسال رمز الدخول فقط</option>
+                            <option value="withoutMax">ارسال دعوات بدون عدد دعوات محدد</option>
                         </select>
                     </div>
 
@@ -118,7 +119,7 @@ export default function CreateNewParty() {
 
                     <div className="dataOfNewParty">
                         <label htmlFor="fileUpload" className="uploadBtn">
-                            رفع ملف <FaCloudUploadAlt />
+                            upload <FaCloudUploadAlt />
                         </label>
                         <input
                             type="file"

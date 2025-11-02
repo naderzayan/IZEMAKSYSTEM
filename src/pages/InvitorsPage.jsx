@@ -139,10 +139,12 @@ export default function InvitorsPage() {
 
 const handleExportExcel = () => {
     const dataForExcel = invitors.map((item) => ({
-        "اسم المدعو": item.name,
-        "رقم الهاتف": item.phoneNumber,
-        الحالة: item.status,
+        "Name": item.name,
+        "Phone Number": item.phoneNumber,
+        "Max Scan": item.maxScan ?? "",
+        Status: item.status,
     }));
+
     const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Invitors");
@@ -150,6 +152,7 @@ const handleExportExcel = () => {
     const fileName = `${partyId || "party"}.xlsx`;
     XLSX.writeFile(workbook, fileName);
 };
+
 
 const handleExportPDF = () => {
     const doc = new jsPDF();
