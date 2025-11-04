@@ -6,6 +6,7 @@ import MainPartyData from './pages/MainPartyData'
 import AddInvitors from './pages/AddInvitors'
 import InvitorsPage from './pages/InvitorsPage'
 import UpDateInvitor from './pages/UpDateInvitor'
+import QRCodeScanner from './pages/QRCodeScanner'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Route path='/addinvitors' element={<AddInvitors />}></Route>
           <Route path='/invitorspage' element={<InvitorsPage />}></Route>
           <Route path='/updateinvitor' element={<UpDateInvitor />}></Route>
+          <Route path='/qr_code_scanner' element={<QRCodeScanner />}></Route>
         </Routes>
       </Router>
     </main>

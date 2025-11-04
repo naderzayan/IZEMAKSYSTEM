@@ -1,0 +1,81 @@
+body {
+  background: #dbcce9;
+  margin: 0;
+  padding: 0;
+}
+
+.mainOfQRCodeScanner {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  text-align: center;
+  padding: 1em;
+  font-size: larger;
+  font-weight: bolder;
+}
+
+.scanCard {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  gap: 1.5em;
+  border: 1px solid #7A6B88;
+  padding: 2em;
+  margin: 2em;
+  width: 100%;
+  border-radius: 10px;
+}
+button {
+    padding: .5em;
+}
+.drob {
+    border: 1px solid #7A6B88;
+    padding: 2em;
+}
+a {
+    color: #000;
+}
+
+svg {
+  font-size: 30px;
+}
+
+.mainOfQRCodeScanner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+
+  .scannerContainer {
+    text-align: center;
+  }
+
+  .scanCard {
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    align-items: center;
+  }
+}
+
+.drop-zone {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  border-radius: 10px;
+  transition: 0.3s;
+  text-align: center;
+}
+
+.drop-zone.dragging {
+  border-color: #4caf50;
+  background-color: #f6fff6;
+}
