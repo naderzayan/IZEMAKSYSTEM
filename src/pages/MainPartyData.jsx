@@ -14,12 +14,10 @@ export default function MainPartyData() {
     const [lastPage, setLastPage] = useState(1);
     const [loading, setLoading] = useState(false);
 
-    // ✅ متغيرات المودال الخاص بالتعديل
     const [showEditModal, setShowEditModal] = useState(false);
     const [editPartyName, setEditPartyName] = useState("");
     const [editPartyId, setEditPartyId] = useState(null);
 
-    // ✅ متغيرات الحذف
     const [showModal, setShowModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(null);
     const [deletePartyName, setDeletePartyName] = useState("");
@@ -88,14 +86,12 @@ export default function MainPartyData() {
         if (currentPage > 1) setCurrentPage((prev) => prev - 1);
     };
 
-    // ✅ فتح مودال التعديل
     const openEditModal = (party) => {
         setEditPartyName(party.name);
         setEditPartyId(party.id);
         setShowEditModal(true);
     };
 
-    // ✅ تنفيذ التعديل وإرسال الـ API
     const handleEditSubmit = async () => {
         if (!editPartyId || !editPartyName.trim()) return;
 
@@ -115,7 +111,6 @@ export default function MainPartyData() {
             const data = await response.json();
 
             if (data.success || response.ok) {
-                // ✅ تحديث الاسم في الجدول مباشرة
                 const updated = parties.map((p) =>
                     p.id === editPartyId ? { ...p, name: editPartyName } : p
                 );
@@ -242,7 +237,6 @@ export default function MainPartyData() {
                 </>
             )}
 
-            {/* ✅ مودال الحذف */}
             {showModal && (
                 <div className="modalOverlay">
                     <div className="modal">
@@ -259,7 +253,6 @@ export default function MainPartyData() {
                 </div>
             )}
 
-            {/* ✅ مودال التعديل */}
             {showEditModal && (
                 <div className="modalOverlay">
                     <div className="modal">
