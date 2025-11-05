@@ -77,3 +77,30 @@ a {
   border-color: #4caf50;
   background-color: #f6fff6;
 }
+
+.successfully {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: .5em;
+}
+.info-table {
+  border-collapse: collapse;
+  width: 350px;
+  background-color: #f1f1ef;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.info-table th,
+.info-table td {
+  border: 1px solid #bcbcbc;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 15px;
+}
+
+.info-table th {
+  background-color: #e2e2df;
+  font-weight: bold;
+  width: 150px;
+}
