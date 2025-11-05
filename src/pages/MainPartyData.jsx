@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../style/_mainPartyData.scss";
-import { FaUserEdit } from "react-icons/fa";
+import { FaUserEdit, FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { IoSearchSharp } from "react-icons/io5";
-import { FaRegEdit } from "react-icons/fa";
 import Footer from "../components/Footer";
 
 export default function MainPartyData() {
@@ -13,10 +12,17 @@ export default function MainPartyData() {
     const [searchPerformed, setSearchPerformed] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+
+    // ✅ متغيرات المودال الخاص بالتعديل
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editPartyName, setEditPartyName] = useState("");
+    const [editPartyId, setEditPartyId] = useState(null);
+
+    // ✅ متغيرات الحذف
     const [showModal, setShowModal] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(null);
     const [deletePartyName, setDeletePartyName] = useState("");
-    const [loading, setLoading] = useState(false);
 
     const baseUrl = "https://www.izemak.com/azimak/public/api/parties";
 
@@ -53,13 +59,15 @@ export default function MainPartyData() {
         fetch(deleteUrl, {
             method: "DELETE",
             headers: { Accept: "application/json" },
-        });
-
-        const updatedParties = parties.filter((_, i) => i !== deleteIndex);
-        setParties(updatedParties);
-        setShowModal(false);
-        setDeleteIndex(null);
-        setDeletePartyName("");
+        })
+            .then(() => {
+                const updatedParties = parties.filter((_, i) => i !== deleteIndex);
+                setParties(updatedParties);
+                setShowModal(false);
+                setDeleteIndex(null);
+                setDeletePartyName("");
+            })
+            .catch((err) => console.error("Delete error:", err));
     };
 
     const handleSearch = () => {
@@ -73,14 +81,51 @@ export default function MainPartyData() {
     };
 
     const goToNextPage = () => {
-        if (currentPage < lastPage) {
-            setCurrentPage((prev) => prev + 1);
-        }
+        if (currentPage < lastPage) setCurrentPage((prev) => prev + 1);
     };
 
     const goToPrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage((prev) => prev - 1);
+        if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+    };
+
+    // ✅ فتح مودال التعديل
+    const openEditModal = (party) => {
+        setEditPartyName(party.name);
+        setEditPartyId(party.id);
+        setShowEditModal(true);
+    };
+
+    // ✅ تنفيذ التعديل وإرسال الـ API
+    const handleEditSubmit = async () => {
+        if (!editPartyId || !editPartyName.trim()) return;
+
+        try {
+            const response = await fetch("https://www.izemak.com/azimak/public/api/update/party", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: editPartyId,
+                    name: editPartyName,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success || response.ok) {
+                // ✅ تحديث الاسم في الجدول مباشرة
+                const updated = parties.map((p) =>
+                    p.id === editPartyId ? { ...p, name: editPartyName } : p
+                );
+                setParties(updated);
+                setShowEditModal(false);
+            } else {
+                alert("حدث خطأ أثناء التعديل");
+            }
+        } catch (error) {
+            console.error("Edit error:", error);
         }
     };
 
@@ -88,7 +133,7 @@ export default function MainPartyData() {
         <main className="mainOfMainPartyData">
             <div className="addParty">
                 <button className="addBtn">
-                    <Link to="/createnewparty"> إضافة حفل جديد</Link>
+                    <Link to="/createnewparty">إضافة حفل جديد</Link>
                 </button>
                 <div className="search">
                     <button className="searchBtn" onClick={handleSearch}>
@@ -135,18 +180,34 @@ export default function MainPartyData() {
                             {parties.length > 0 ? (
                                 parties.map((party, index) => (
                                     <tr key={index}>
-                                        <td>{party.name} <button className="EditButton"><FaRegEdit /></button></td> 
+                                        <td>
+                                            {party.name}{" "}
+                                            <button
+                                                className="EditButton"
+                                                onClick={() => openEditModal(party)}
+                                            >
+                                                <FaRegEdit />
+                                            </button>
+                                        </td>
                                         <td>{party.time}</td>
                                         <td>{party.address}</td>
                                         <td>
-                                            <button className="deleteBtn" onClick={() => confirmDelete(index)}>
+                                            <button
+                                                className="deleteBtn"
+                                                onClick={() => confirmDelete(index)}
+                                            >
                                                 <MdDelete />
                                             </button>
                                             <button className="editBtn">
-                                                <Link to="/AddInvitors" state={{ partyId: party?.id, partyName: party?.name }}>
-                                                <FaUserEdit />
+                                                <Link
+                                                    to="/AddInvitors"
+                                                    state={{
+                                                        partyId: party?.id,
+                                                        partyName: party?.name,
+                                                    }}
+                                                >
+                                                    <FaUserEdit />
                                                 </Link>
-
                                             </button>
                                         </td>
                                     </tr>
@@ -181,6 +242,7 @@ export default function MainPartyData() {
                 </>
             )}
 
+            {/* ✅ مودال الحذف */}
             {showModal && (
                 <div className="modalOverlay">
                     <div className="modal">
@@ -196,6 +258,29 @@ export default function MainPartyData() {
                     </div>
                 </div>
             )}
+
+            {/* ✅ مودال التعديل */}
+            {showEditModal && (
+                <div className="modalOverlay">
+                    <div className="modal">
+                        <h3>تعديل اسم الحفلة</h3>
+                        <input
+                            type="text"
+                            value={editPartyName}
+                            onChange={(e) => setEditPartyName(e.target.value)}
+                        />
+                        <div className="modalActions">
+                            <button className="confirmBtn" onClick={handleEditSubmit}>
+                                حفظ التعديل
+                            </button>
+                            <button className="cancelBtn" onClick={() => setShowEditModal(false)}>
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Footer />
         </main>
     );
