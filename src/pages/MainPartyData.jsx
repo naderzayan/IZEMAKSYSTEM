@@ -124,6 +124,32 @@ export default function MainPartyData() {
         }
     };
 
+    const renderPageNumbers = () => {
+        const pages = [];
+        const maxPagesToShow = 5;
+
+        let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+        let endPage = Math.min(lastPage, startPage + maxPagesToShow - 1);
+
+        if (endPage - startPage < maxPagesToShow - 1) {
+            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(
+                <button
+                    key={i}
+                    onClick={() => setCurrentPage(i)}
+                    className={`pageNumber ${i === currentPage ? "active" : ""}`}
+                >
+                    {i}
+                </button>
+            );
+        }
+
+        return pages;
+    };
+
     return (
         <main className="mainOfMainPartyData">
             <div className="addParty">
@@ -224,13 +250,21 @@ export default function MainPartyData() {
                     </table>
 
                     <div className="pages">
-                        <button className="prev" onClick={goToPrevPage} disabled={currentPage === 1}>
+                        <button
+                            className="prev"
+                            onClick={goToPrevPage}
+                            disabled={currentPage === 1}
+                        >
                             السابقة
                         </button>
-                        <span>
-                            {currentPage} / {lastPage}
-                        </span>
-                        <button className="next" onClick={goToNextPage} disabled={currentPage === lastPage}>
+
+                        {renderPageNumbers()}
+
+                        <button
+                            className="next"
+                            onClick={goToNextPage}
+                            disabled={currentPage === lastPage}
+                        >
                             التالية
                         </button>
                     </div>
