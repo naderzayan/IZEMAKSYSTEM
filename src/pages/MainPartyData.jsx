@@ -117,7 +117,7 @@ export default function MainPartyData() {
                 setParties(updated);
                 setShowEditModal(false);
             } else {
-                alert("حدث خطأ أثناء التعديل");
+                alert("error");
             }
         } catch (error) {
             console.error("Edit error:", error);
@@ -176,7 +176,7 @@ export default function MainPartyData() {
                 </div>
                 <div>
                     <button className="Btn">
-                        <Link to='/deletedparties'>Recover deleted events</Link>
+                        <Link to='/deletedparties'>Recover deleted parties</Link>
                     </button>
                 </div>
                 <div>
@@ -279,13 +279,13 @@ export default function MainPartyData() {
             {showModal && (
                 <div className="modalOverlay">
                     <div className="modal">
-                        <h3>هل متأكد من حذف الحفلة "{deletePartyName}"؟</h3>
+                        <h3> Are you sure you want to delete {deletePartyName} ؟</h3>
                         <div className="modalActions">
                             <button className="confirmBtn" onClick={handleDelete}>
-                                نعم
+                                yes
                             </button>
                             <button className="cancelBtn" onClick={() => setShowModal(false)}>
-                                لا
+                                no
                             </button>
                         </div>
                     </div>

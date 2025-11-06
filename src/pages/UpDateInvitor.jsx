@@ -20,7 +20,7 @@ export default function UpDateInvitor() {
 
         try {
             const response = await fetch(`${baseUrl}/profile`, {
-                method: "Put",
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -33,10 +33,10 @@ export default function UpDateInvitor() {
                 }),
             });
 
-            if (response.ok) {                
+            if (response.ok) {
                 navigate("/invitorspage", { state: { partyId: invitor.Party_id } });
             } else {
-                console.error("فشل في تعديل البيانات");
+                console.error("error");
             }
         } catch (error) {
             console.error("Error:", error);
@@ -45,20 +45,27 @@ export default function UpDateInvitor() {
 
     return (
         <main className="mainOfUpDateInvitor">
+            <Link to="/invitorspage" state={{ partyId: invitor?.Party_id }}>
+                <img src="اعزمك-01.png" alt="" />
+            </Link>
+
             <h1>تعديل البيانات</h1>
             <form onSubmit={handleSubmit}>
                 <div className="details">
                     <label>الاسم</label>
                     <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
+
                 <div className="details">
                     <label>رقم الهاتف</label>
                     <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
                 </div>
+
                 <div className="details">
                     <label>عدد مرات القراءة</label>
                     <input type="number" value={readCount} onChange={(e) => setReadCount(e.target.value)} />
                 </div>
+
                 <label>الحالة</label>
                 <div className="condition">
                     <select value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -68,6 +75,7 @@ export default function UpDateInvitor() {
                         <option value="Rejected">Rejected</option>
                     </select>
                 </div>
+
                 <div className="submit">
                     <button type="submit">تعديل</button>
                 </div>

@@ -245,7 +245,7 @@ export default function InvitorsPage() {
       </header>
 
       {loading ? (
-        <p className="loading">جاري تحميل البيانات...</p>
+        <p className="loading">...loading</p>
       ) : (
         <table className="invitorsTable">
           <thead>
@@ -299,10 +299,10 @@ export default function InvitorsPage() {
       {showConfirm && (
         <div className="confirmOverlay">
           <div className="confirmBox">
-            <p> هل متأكد من حذف {selectedInvitor?.name} ؟</p>
+            <p> {selectedInvitor?.name} Are you sure to delete ؟</p>
             <div className="confirmBtns">
-              <button onClick={confirmDelete}>نعم</button>
-              <button onClick={cancelDelete}>لا</button>
+              <button onClick={confirmDelete}>yes</button>
+              <button onClick={cancelDelete}>no</button>
             </div>
           </div>
         </div>
@@ -312,7 +312,7 @@ export default function InvitorsPage() {
         <div className="confirmOverlay">
           <div className="confirmBox">
             <p>
-              هل متأكد من حذف{" "}
+              Are you sure to delete{" "}
               {invitors.filter((invitor) => invitor.selected).length} مدعو
               {invitors.filter((invitor) => invitor.selected).length !== 1
                 ? ""
