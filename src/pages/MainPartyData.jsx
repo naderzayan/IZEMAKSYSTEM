@@ -163,7 +163,6 @@ export default function MainPartyData() {
                     <IoSearchSharp />
                     <input
                         type="search"
-                        placeholder="Enter party name "
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={(e) => {
