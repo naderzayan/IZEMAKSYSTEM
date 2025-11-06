@@ -12,19 +12,20 @@
   align-items: center;
   margin-bottom: 1rem;
 
-  .addBtn {
+  .Btn {
     background-color: #7A6B88;
     color: #fff;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 5px;
+    cursor: pointer;
 
     a {
       color: #fff;
       text-decoration: none;
     }
   }
-  .addBtn:hover {
+  .Btn:hover {
     background-color: #dbcce9;
     color: #000;
     border: 1px solid #000;
@@ -45,7 +46,6 @@
     display: flex;
     gap: 0.5rem;
     svg {
-      // font-size: 20px;
       transform: translate(-2rem,.5rem);
     }
 

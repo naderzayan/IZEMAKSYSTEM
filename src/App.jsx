@@ -7,6 +7,7 @@ import AddInvitors from './pages/AddInvitors'
 import InvitorsPage from './pages/InvitorsPage'
 import UpDateInvitor from './pages/UpDateInvitor'
 import QRCodeScanner from './pages/QRCodeScanner'
+import DeletedParties from './pages/DeletedParties'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path='/login' element={<Login />}></Route>
           <Route path='/createnewparty' element={<CreateNewParty />}></Route>
           <Route path='/mainpartydata' element={<MainPartyData />}></Route>
+          <Route path="/deletedparties" element={<DeletedParties />} />
           <Route path='/addinvitors' element={<AddInvitors />}></Route>
           <Route path='/invitorspage' element={<InvitorsPage />}></Route>
           <Route path='/updateinvitor' element={<UpDateInvitor />}></Route>

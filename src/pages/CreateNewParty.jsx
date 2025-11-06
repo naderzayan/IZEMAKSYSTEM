@@ -54,7 +54,7 @@ export default function CreateNewParty() {
             <Link to="/mainpartydata">
                 <img src="/اعزمك-01.png" alt="" />
             </Link>
-            <h1 className="title">إضافة حفل جديد</h1>
+            <h1 className="title">Add a new party</h1>
 
             {loading ? (
                 <div className="loadingOverlay">
@@ -75,10 +75,9 @@ export default function CreateNewParty() {
                     </div>
 
                     <div className="dataOfNewParty">
-                        <label>اسم الحفل</label>
+                        <label>Party name</label>
                         <input
                             type="text"
-                            placeholder="اسم الحفل"
                             value={partyName}
                             onChange={(e) => setPartyName(e.target.value)}
                             required
@@ -86,10 +85,9 @@ export default function CreateNewParty() {
                     </div>
 
                     <div className="dataOfNewParty">
-                        <label>ميعاد الحفل</label>
+                        <label>Party time</label>
                         <input
                             type="text"
-                            placeholder="ميعاد الحفل"
                             value={partyDate}
                             onChange={(e) => setPartyDate(e.target.value)}
                             required
@@ -97,10 +95,9 @@ export default function CreateNewParty() {
                     </div>
 
                     <div className="dataOfNewParty">
-                        <label>مكان الحفل</label>
+                        <label>Party address</label>
                         <input
                             type="text"
-                            placeholder="مكان الحفل"
                             value={partyPlace}
                             onChange={(e) => setPartyPlace(e.target.value)}
                             required
@@ -108,10 +105,9 @@ export default function CreateNewParty() {
                     </div>
 
                     <div className="dataOfNewParty">
-                        <label>ادخل نص الدعوة</label>
+                        <label>Enter the invitation text</label>
                         <input
                             type="text"
-                            placeholder="ادخل نص الدعوة"
                             className="textarea"
                             value={invitationText}
                             onChange={(e) => setInvitationText(e.target.value)}
@@ -132,7 +128,7 @@ export default function CreateNewParty() {
 
                     <div className="dataOfNewParty">
                         <button type="submit" className="submitBtn">
-                            إضافة الحفلة
+                            Add party
                         </button>
                     </div>
                 </form>

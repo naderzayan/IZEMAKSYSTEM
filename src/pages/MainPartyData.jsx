@@ -153,17 +153,17 @@ export default function MainPartyData() {
     return (
         <main className="mainOfMainPartyData">
             <div className="addParty">
-                <button className="addBtn">
-                    <Link to="/createnewparty">إضافة حفل جديد</Link>
+                <button className="Btn">
+                    <Link to="/createnewparty">Add a new party</Link>
                 </button>
                 <div className="search">
-                    <button className="searchBtn" onClick={handleSearch}>
-                        بحث
+                    <button className="Btn" onClick={handleSearch}>
+                        search
                     </button>
                     <IoSearchSharp />
                     <input
                         type="search"
-                        placeholder="ادخل اسم الحفلة"
+                        placeholder="Enter party name "
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={(e) => {
@@ -175,6 +175,11 @@ export default function MainPartyData() {
                     />
                 </div>
                 <div>
+                    <button className="Btn">
+                        <Link to='/deletedparties'>Recover deleted events</Link>
+                    </button>
+                </div>
+                <div>
                     <Link to="/mainpartydata">
                         <img src="/اعزمك-01.png" alt="" />
                     </Link>
@@ -184,17 +189,17 @@ export default function MainPartyData() {
             {loading ? (
                 <div className="loadingSpinner">
                     <div className="spinner"></div>
-                    <p>جاري تحميل البيانات...</p>
+                    <p>Loading...</p>
                 </div>
             ) : (
                 <>
                     <table className="partyTable">
                         <thead>
                             <tr>
-                                <th>اسم الحفلة</th>
-                                <th>ميعاد الحفلة</th>
-                                <th>عنوان الحفلة</th>
-                                <th>الحذف والتعديل/إضافة</th>
+                                <th>Party name</th>
+                                <th>Party time</th>
+                                <th>Party address</th>
+                                <th>procedures</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -290,7 +295,7 @@ export default function MainPartyData() {
             {showEditModal && (
                 <div className="modalOverlay">
                     <div className="modal">
-                        <h3>تعديل اسم الحفلة</h3>
+                        <h3>Edit party name</h3>
                         <input
                             type="text"
                             value={editPartyName}
@@ -298,10 +303,10 @@ export default function MainPartyData() {
                         />
                         <div className="modalActions">
                             <button className="confirmBtn" onClick={handleEditSubmit}>
-                                حفظ التعديل
+                                Save
                             </button>
                             <button className="cancelBtn" onClick={() => setShowEditModal(false)}>
-                                إلغاء
+                                Cancel
                             </button>
                         </div>
                     </div>

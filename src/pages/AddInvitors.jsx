@@ -249,7 +249,7 @@ export default function AddInvitors() {
                     }, 1000);
 
                   } catch (err) {
-                    setError(err.message || "حدث خطأ أثناء الإرسال");
+                    setError(err.message || "error");
                   } finally {
                     setSaving(false);
                   }
@@ -257,7 +257,7 @@ export default function AddInvitors() {
                 disabled={saving}
                 className="confirmBtn"
               >
-                إرسال
+                send
               </button>
 
               <button
@@ -269,7 +269,7 @@ export default function AddInvitors() {
                 }}
                 className="cancelBtn"
               >
-                إلغاء
+                cancel
               </button>
             </div>
           </div>
@@ -290,9 +290,9 @@ export default function AddInvitors() {
         </Link>
         <ul>
           {loading ? (
-            <p className="loading">جاري تحميل البيانات...</p>
+            <p className="loading">Loading...</p>
           ) : !Array.isArray(guests) || guests.length === 0 ? (
-            <p>لا توجد بيانات بعد</p>
+            <p>No data yet...</p>
           ) : (
             guests.map((guest, idx) => (
               <li key={idx}>
@@ -313,25 +313,25 @@ export default function AddInvitors() {
 
         <div className="name">
           <label>الاسم</label>
-          <input type="text" placeholder="الاسم" value={name} onChange={(e) => setName(e.target.value)} />
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
 
         <div className="phoneNum">
           <label>رقم الهاتف</label>
-          <input type="number" placeholder="رقم الهاتف" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input type="number" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
 
         <div className="numOfInvitations">
           <label>عدد الدعوات</label>
-          <input type="number" placeholder="عدد الدعوات" value={invites} onChange={(e) => setInvites(e.target.value)} />
+          <input type="number" value={invites} onChange={(e) => setInvites(e.target.value)} />
         </div>
 
         <div className="buttons">
           <div className="addButton">
-            <button onClick={handleAddGuest} disabled={saving}>إضافة</button>
+            <button onClick={handleAddGuest} disabled={saving}>Add</button>
           </div>
           <div className="addButton">
-            <label htmlFor="fileUpload" className="uploadBtn">رفع ملف</label>
+            <label htmlFor="fileUpload" className="uploadBtn">Upload a file</label>
             <input type="file" id="fileUpload" className="inputUpload" onChange={handleFileChange} />
           </div>
         </div>
