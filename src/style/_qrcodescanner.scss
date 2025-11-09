@@ -10,58 +10,54 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-h1 {
   text-align: center;
-  padding: 1em;
-  font-size: larger;
-  font-weight: bolder;
-}
 
-.scanCard {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  flex-direction: column;
-  gap: 1.5em;
-  border: 1px solid #7A6B88;
-  padding: 2em;
-  margin: 2em;
-  width: 100%;
-  border-radius: 10px;
-}
-button {
-    padding: .5em;
-}
-.drob {
-    border: 1px solid #7A6B88;
-    padding: 2em;
-}
-a {
-    color: #000;
-}
-
-
-
-.mainOfQRCodeScanner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-
-  .scannerContainer {
-    text-align: center;
+  h1 {
+    padding: 1em;
+    font-size: larger;
+    font-weight: bolder;
   }
 
   .scanCard {
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 2em;
     align-items: center;
+    justify-content: center;
+    gap: 1.5em;
+    border: 1px solid #7A6B88;
+    padding: 2em;
+    margin-top: 1em;
+    width: 350px;
+    max-width: 90vw;
+    border-radius: 10px;
+    background: #7A6B88;
+    margin-left: auto;
+    margin-right: auto;
+    transition: all 0.3s ease;
+  }
+
+  video {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 1em;
+  }
+
+  button {
+    padding: 0.5em 1em;
+    cursor: pointer;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  .error {
+    color: red !important;
+    margin-top: 1rem;
+    text-align: center;
+    width: 100%;
   }
 }
 
@@ -71,36 +67,37 @@ a {
   border-radius: 10px;
   transition: 0.3s;
   text-align: center;
-}
 
-.drop-zone.dragging {
-  border-color: #4caf50;
-  background-color: #f6fff6;
+  &.dragging {
+    border-color: #000;
+    background-color: #f6fff6;
+  }
 }
 
 .successfully {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  gap: .5em;
+  gap: 0.5em;
 }
+
 .info-table {
   border-collapse: collapse;
   width: 350px;
   background-color: #f1f1ef;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
 
-.info-table th,
-.info-table td {
-  border: 1px solid #bcbcbc;
-  padding: 8px 12px;
-  text-align: left;
-  font-size: 15px;
-}
+  th,
+  td {
+    border: 1px solid #bcbcbc;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 15px;
+  }
 
-.info-table th {
-  background-color: #e2e2df;
-  font-weight: bold;
-  width: 150px;
+  th {
+    background-color: #e2e2df;
+    font-weight: bold;
+    width: 150px;
+  }
 }

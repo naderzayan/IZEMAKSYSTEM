@@ -101,7 +101,7 @@ export default function QRCodeScanner() {
         setScannedText(decoded);
         await callScanApi(decoded);
       } else {
-        setError("No QR code found in image.");
+        setError("No QR code found in image");
       }
 
     };
@@ -146,7 +146,7 @@ export default function QRCodeScanner() {
     } catch (e) {
       console.error("camera error", e);
       setError(
-        "Camera access denied or not available. Ensure HTTPS and permissions."
+        "Camera access denied or not available"
       );
     }
   }
@@ -260,7 +260,6 @@ export default function QRCodeScanner() {
                   </div>
                 ) : (
                   <div className="preview">
-                    <p>Image ready to scan!</p>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
                         onClick={() => {
@@ -293,7 +292,7 @@ export default function QRCodeScanner() {
                   setShowImageScan(false);
                 }}
               >
-                Back to Camera / Options
+                Back to Camera
               </Link>
             </div>
           )}
@@ -308,7 +307,7 @@ export default function QRCodeScanner() {
                   muted
                 />
                 <p style={{ fontSize: 12 }}>
-                  Camera active — point at a QR code.
+                  Camera active — point at a QR code
                 </p>
               </div>
             )}
