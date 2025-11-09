@@ -132,6 +132,38 @@
   }
 }
 
+.pages {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 1rem;
+  padding-bottom: 1em;
+
+  button {
+    padding: 0.5rem 1rem;
+    background-color: #7A6B88;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+  }
+
+  button:hover {
+    background: #dbcce9;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+
+  .pageNumber.active {
+    background-color: #dbcce9;
+    color: #000;
+    border: 1px solid #000;
+    font-weight: bold;
+  }
+}
+
+
 .modalOverlay {
     position: fixed;
     top: 0;

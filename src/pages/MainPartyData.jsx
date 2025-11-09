@@ -254,13 +254,14 @@ export default function MainPartyData() {
                     </table>
 
                     <div className="pages">
-                        <button
-                            className="prev"
-                            onClick={goToPrevPage}
-                            disabled={currentPage === 1}
-                        >
-                            السابقة
-                        </button>
+                        {currentPage > 5 && (
+                            <button
+                                className="prev"
+                                onClick={goToPrevPage}
+                            >
+                                السابقة
+                            </button>
+                        )}
 
                         {renderPageNumbers()}
 
