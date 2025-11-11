@@ -2,9 +2,17 @@ import React, { useState, useRef, useEffect } from "react";
 import "../style/_qrcodescanner.scss";
 import { BsQrCodeScan } from "react-icons/bs";
 import { MdOutlineImageSearch } from "react-icons/md";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import jsQR from "jsqr";
+
+/**
+ * QRCodeScanner
+ * - Improved startCamera with detailed error handling & device checks
+ * - Safer cleanup on unmount
+ * - Buttons used for toggles (no accidental route navigations)
+ *
+ * Usage: import and render <QRCodeScanner />
+ */
 
 export default function QRCodeScanner() {
   const [showImageScan, setShowImageScan] = useState(false);
@@ -25,8 +33,13 @@ export default function QRCodeScanner() {
   useEffect(() => {
     return () => {
       stopCamera();
-      if (selectedImage) URL.revokeObjectURL(selectedImage);
+      if (selectedImage) {
+        try {
+          URL.revokeObjectURL(selectedImage);
+        } catch (e) {}
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function tryDecodeFromCanvas() {
@@ -47,8 +60,11 @@ export default function QRCodeScanner() {
   async function callScanApi(scanned) {
     setError("");
     try {
+      // NOTE: keep your real URL here
       const res = await axios.get(
-        `https://www.izemak.com/azimak/public/api/scan/${scanned}`
+        `https://www.izemak.com/azimak/public/api/scan/${encodeURIComponent(
+          scanned
+        )}`
       );
       if (res.status === 200 && res.data) {
         setScanData({
@@ -78,7 +94,11 @@ export default function QRCodeScanner() {
 
     stopCamera();
     const imageURL = URL.createObjectURL(file);
-    if (selectedImage) URL.revokeObjectURL(selectedImage);
+    if (selectedImage) {
+      try {
+        URL.revokeObjectURL(selectedImage);
+      } catch (e) {}
+    }
     setSelectedImage(imageURL);
 
     const img = new Image();
@@ -100,7 +120,9 @@ export default function QRCodeScanner() {
     };
     img.onerror = () => {
       setError("Failed to read image file");
-      URL.revokeObjectURL(imageURL);
+      try {
+        URL.revokeObjectURL(imageURL);
+      } catch (e) {}
       setSelectedImage(null);
     };
     img.src = imageURL;
@@ -112,6 +134,11 @@ export default function QRCodeScanner() {
 
   const handleRescan = () => {
     setScanSuccess(false);
+    if (selectedImage) {
+      try {
+        URL.revokeObjectURL(selectedImage);
+      } catch (e) {}
+    }
     setSelectedImage(null);
     setShowImageScan(false);
     setScannedText("");
@@ -122,9 +149,40 @@ export default function QRCodeScanner() {
   async function startCamera() {
     setError("");
     setScanSuccess(false);
+    if (selectedImage) {
+      try {
+        URL.revokeObjectURL(selectedImage);
+      } catch (e) {}
+    }
     setSelectedImage(null);
 
     try {
+      // Capability check
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setError("Your browser does not support camera access (navigator.mediaDevices missing).");
+        console.error("navigator.mediaDevices missing");
+        return;
+      }
+
+      // If page is inside an iframe warn (parent must allow camera)
+      if (window.self !== window.top) {
+        console.warn("Page appears inside an iframe. Parent must allow camera with allow=\"camera\" on the iframe.");
+      }
+
+      // Try to enumerate devices to detect if any video input exists
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const hasVideoInput = devices.some((d) => d.kind === "videoinput");
+        if (!hasVideoInput) {
+          setError("No camera devices found on this machine.");
+          console.error("No videoinput devices:", devices);
+          return;
+        }
+      } catch (enumErr) {
+        // Not fatal — continue to request permission (enumerateDevices might be restricted)
+        console.warn("enumerateDevices failed:", enumErr);
+      }
+
       const constraints = {
         video: {
           facingMode: { ideal: "environment" },
@@ -138,42 +196,70 @@ export default function QRCodeScanner() {
       streamRef.current = stream;
 
       if (videoRef.current) {
+        // Attach stream and attempt to play
         videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = async () => {
-          try {
-            await videoRef.current.play();
-            setCameraActive(true);
-            rafRef.current = requestAnimationFrame(scanVideoFrame);
-          } catch (err) {
-            console.error("Video play error", err);
-            setError("Unable to start camera playback");
-          }
-        };
+        videoRef.current.playsInline = true;
+        videoRef.current.muted = true; // helps autoplay in some browsers
+
+        try {
+          await videoRef.current.play();
+          setCameraActive(true);
+          rafRef.current = requestAnimationFrame(scanVideoFrame);
+        } catch (playErr) {
+          console.error("Video play error", playErr);
+          setError("Unable to start video playback. Check browser autoplay/permission settings.");
+        }
       }
-    } catch (e) {
-      console.error("Camera error", e);
-      if (
-        window.location.protocol !== "https:" &&
-        window.location.hostname !== "localhost"
-      ) {
-        setError("Camera requires HTTPS or localhost to work");
+    } catch (err) {
+      console.error("Camera error (getUserMedia failed):", err);
+
+      if (err && err.name) {
+        switch (err.name) {
+          case "NotAllowedError":
+          case "SecurityError":
+          case "PermissionDeniedError":
+            setError("Camera access denied. Please allow camera access in your browser settings for this site.");
+            break;
+          case "NotFoundError":
+          case "OverconstrainedError":
+          case "DevicesNotFoundError":
+            setError("No compatible camera found on this device.");
+            break;
+          case "NotReadableError":
+          case "TrackStartError":
+            setError("Camera is already in use by another application.");
+            break;
+          default:
+            setError("Camera access failed: " + (err.message || err.name));
+        }
       } else {
-        setError("Camera access denied or not available");
+        if (window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
+          setError("Camera requires HTTPS or localhost to work.");
+        } else {
+          setError("Camera access denied or not available.");
+        }
       }
     }
   }
 
   function stopCamera() {
     setCameraActive(false);
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (rafRef.current) {
+      try {
+        cancelAnimationFrame(rafRef.current);
+      } catch (e) {}
+      rafRef.current = null;
+    }
     if (videoRef.current) {
       try {
         videoRef.current.pause();
         videoRef.current.srcObject = null;
-      } catch {}
+      } catch (e) {}
     }
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
+      try {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+      } catch (e) {}
       streamRef.current = null;
     }
   }
@@ -189,6 +275,7 @@ export default function QRCodeScanner() {
     const vw = video.videoWidth;
     const vh = video.videoHeight;
     if (vw === 0 || vh === 0) {
+      // video metadata not ready
       setTimeout(() => {
         rafRef.current = requestAnimationFrame(scanVideoFrame);
       }, 100);
@@ -233,9 +320,7 @@ export default function QRCodeScanner() {
                 ) : (
                   <button onClick={stopCamera}>Stop Camera</button>
                 )}
-                <Link onClick={() => setShowImageScan(true)}>
-                  Scan an Image File
-                </Link>
+                <button onClick={() => setShowImageScan(true)}>Scan an Image File</button>
               </div>
             </div>
           )}
@@ -283,7 +368,9 @@ export default function QRCodeScanner() {
                       </button>
                       <button
                         onClick={() => {
-                          URL.revokeObjectURL(selectedImage);
+                          try {
+                            URL.revokeObjectURL(selectedImage);
+                          } catch (e) {}
                           setSelectedImage(null);
                         }}
                       >
@@ -293,9 +380,7 @@ export default function QRCodeScanner() {
                   </div>
                 )}
               </div>
-              <Link onClick={() => setShowImageScan(false)}>
-                Back to Camera
-              </Link>
+              <button onClick={() => setShowImageScan(false)}>Back to Camera</button>
             </div>
           )}
 
@@ -314,9 +399,7 @@ export default function QRCodeScanner() {
                   muted
                   autoPlay
                 />
-                <p style={{ fontSize: 12 }}>
-                  Camera active — point at a QR code.
-                </p>
+                <p style={{ fontSize: 12 }}>Camera active — point at a QR code.</p>
               </div>
             )}
           </div>
