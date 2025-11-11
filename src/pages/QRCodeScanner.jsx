@@ -147,7 +147,7 @@ export default function QRCodeScanner() {
 
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setError("Your browser does not support camera access (navigator.mediaDevices missing).");
+        setError("Your browser does not support camera access (navigator.mediaDevices missing)");
         console.error("navigator.mediaDevices missing");
         return;
       }
@@ -160,7 +160,7 @@ export default function QRCodeScanner() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const hasVideoInput = devices.some((d) => d.kind === "videoinput");
         if (!hasVideoInput) {
-          setError("No camera devices found on this machine.");
+          setError("No camera devices found on this machine");
           console.error("No videoinput devices:", devices);
           return;
         }
