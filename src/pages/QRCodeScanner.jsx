@@ -428,7 +428,7 @@ export default function QRCodeScanner() {
           )}
 
           <div style={{ marginTop: 12 }}>
-            {cameraActive && (
+            
               <div className="cameraPreview">
                 <video
                   ref={videoRef}
@@ -444,7 +444,7 @@ export default function QRCodeScanner() {
                 />
                 <p style={{ fontSize: 12 }}>Camera active — point at a QR code</p>
               </div>
-            )}
+            
           </div>
 
           <canvas ref={canvasRef} style={{ display: "none" }} />
