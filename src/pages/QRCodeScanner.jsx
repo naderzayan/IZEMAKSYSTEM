@@ -1,4 +1,3 @@
-// src/components/QRCodeScanner.jsx
 import React, { useState, useRef, useEffect } from "react";
 import "../style/_qrcodescanner.scss";
 import { BsQrCodeScan } from "react-icons/bs";
@@ -23,19 +22,16 @@ export default function QRCodeScanner() {
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const rafRef = useRef(null);
+  const capturedPreviewRef = useRef(null);
 
   useEffect(() => {
-    // get devices early (may be blocked until permission in some browsers)
-    // but we'll still try to enumerate for available cameras
     (async () => {
       try {
         const list = await navigator.mediaDevices?.enumerateDevices?.();
         if (list) {
           setDevices(list.filter((d) => d.kind === "videoinput"));
         }
-      } catch (e) {
-        // ignore, we will re-enumerate later if needed
-      }
+      } catch (e) {}
     })();
 
     return () => {
@@ -46,7 +42,6 @@ export default function QRCodeScanner() {
         } catch (e) {}
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function tryDecodeFromCanvas() {
@@ -150,11 +145,13 @@ export default function QRCodeScanner() {
     setScannedText("");
     setScanData(null);
     setError("");
+    capturedPreviewRef.current = null;
   };
 
   async function startCamera() {
     setError("");
     setScanSuccess(false);
+    setCameraActive(true);
     if (selectedImage) {
       try {
         URL.revokeObjectURL(selectedImage);
@@ -162,28 +159,27 @@ export default function QRCodeScanner() {
     }
     setSelectedImage(null);
 
-    // Basic capability checks
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setError("Your browser does not support camera access (navigator.mediaDevices missing)");
+      setError(
+        "Your browser does not support camera access (navigator.mediaDevices missing)"
+      );
       console.error("navigator.mediaDevices missing");
       return;
     }
 
     if (window.self !== window.top) {
-      console.warn("Page appears inside an iframe. Parent must allow camera with allow=\"camera\" on the iframe.");
+      console.warn(
+        'Page appears inside an iframe. Parent must allow camera with allow="camera" on the iframe.'
+      );
     }
 
     try {
-      // Try to enumerate again — useful if user previously denied or permission prompt not shown earlier.
       let deviceList = [];
       try {
         deviceList = await navigator.mediaDevices.enumerateDevices();
         setDevices(deviceList.filter((d) => d.kind === "videoinput"));
-      } catch (enumErr) {
-        // ignore, continue — some browsers require permission first
-      }
+      } catch (enumErr) {}
 
-      // If user selected a device, use it; otherwise prefer environment camera
       const videoConstraints = {
         width: { ideal: 1280 },
         height: { ideal: 720 },
@@ -196,18 +192,14 @@ export default function QRCodeScanner() {
         audio: false,
       };
 
-      // Request camera
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
 
-      // Attach to video element
       if (videoRef.current) {
-        // prefer using srcObject; set playsInline for iOS
         videoRef.current.setAttribute("playsinline", "true");
         videoRef.current.muted = true;
         videoRef.current.srcObject = stream;
 
-        // Wait for metadata (size) then play
         const playPromise = new Promise((resolve, reject) => {
           const vd = videoRef.current;
           const onLoaded = () => {
@@ -220,7 +212,6 @@ export default function QRCodeScanner() {
           };
           vd.addEventListener("loadedmetadata", onLoaded);
           vd.addEventListener("error", onError);
-          // fallback timeout if event doesn't fire
           setTimeout(() => resolve(), 500);
         });
 
@@ -231,18 +222,21 @@ export default function QRCodeScanner() {
           rafRef.current = requestAnimationFrame(scanVideoFrame);
         } catch (playErr) {
           console.error("Video play error", playErr);
-          setError("Unable to start video playback. Check browser autoplay/permission settings and allow camera access for this site.");
+          setError(
+            "Unable to start video playback. Check browser autoplay/permission settings and allow camera access for this site."
+          );
         }
       }
     } catch (err) {
       console.error("Camera error (getUserMedia failed):", err);
-      // Provide friendly error messages for common errors
       if (err && err.name) {
         switch (err.name) {
           case "NotAllowedError":
           case "SecurityError":
           case "PermissionDeniedError":
-            setError("Camera access denied. Please allow camera access in your browser settings for this site");
+            setError(
+              "Camera access denied. Please allow camera access in your browser settings for this site"
+            );
             break;
           case "NotFoundError":
           case "OverconstrainedError":
@@ -257,7 +251,10 @@ export default function QRCodeScanner() {
             setError("Camera access failed: " + (err.message || err.name));
         }
       } else {
-        if (window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
+        if (
+          window.location.protocol !== "https:" &&
+          window.location.hostname !== "localhost"
+        ) {
           setError("Camera requires HTTPS or localhost to work");
         } else {
           setError("Camera access denied or not available");
@@ -277,7 +274,6 @@ export default function QRCodeScanner() {
     if (videoRef.current) {
       try {
         videoRef.current.pause();
-        // detach stream from video element
         try {
           videoRef.current.srcObject = null;
         } catch (e) {}
@@ -302,7 +298,6 @@ export default function QRCodeScanner() {
     const vw = video.videoWidth;
     const vh = video.videoHeight;
     if (vw === 0 || vh === 0) {
-      // not ready yet
       setTimeout(() => {
         rafRef.current = requestAnimationFrame(scanVideoFrame);
       }, 100);
@@ -325,6 +320,46 @@ export default function QRCodeScanner() {
     rafRef.current = requestAnimationFrame(scanVideoFrame);
   }
 
+  const capturePhoto = () => {
+    setError("");
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) {
+      setError("Camera not ready");
+      return;
+    }
+
+    const vw = video.videoWidth || 640;
+    const vh = video.videoHeight || 480;
+    canvas.width = vw;
+    canvas.height = vh;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, vw, vh);
+
+    try {
+      const dataUrl = canvas.toDataURL("image/png");
+      capturedPreviewRef.current = dataUrl;
+      setSelectedImage(dataUrl);
+    } catch (e) {
+      console.warn("toDataURL failed", e);
+    }
+
+    try {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      if (code) {
+        setScannedText(code.data);
+        callScanApi(code.data);
+        return;
+      } else {
+        setError("No QR code found in captured photo");
+      }
+    } catch (e) {
+      console.warn("capture/scan error", e);
+      setError("Failed to capture/scan image");
+    }
+  };
+
   return (
     <main className="mainOfQRCodeScanner">
       {!scanSuccess ? (
@@ -342,7 +377,6 @@ export default function QRCodeScanner() {
                   alignItems: "center",
                 }}
               >
-                {/* If there are multiple cameras, allow device selection */}
                 {devices.length > 1 && (
                   <select
                     value={selectedDeviceId}
@@ -363,7 +397,14 @@ export default function QRCodeScanner() {
                 ) : (
                   <button onClick={stopCamera}>Stop Camera</button>
                 )}
-                <button onClick={() => setShowImageScan(true)}>Scan an Image File</button>
+                <button
+                  onClick={() => {
+                    setShowImageScan(true);
+                    setCameraActive(false);
+                  }}
+                >
+                  Scan an Image File
+                </button>
               </div>
             </div>
           )}
@@ -393,7 +434,9 @@ export default function QRCodeScanner() {
                       onChange={handleFileSelect}
                       style={{ display: "none" }}
                     />
-                    <button onClick={handleChooseImageClick}>Choose Image</button>
+                    <button onClick={handleChooseImageClick}>
+                      Choose Image
+                    </button>
                     <p>Or drop an image to scan</p>
                   </div>
                 ) : (
@@ -412,7 +455,12 @@ export default function QRCodeScanner() {
                       <button
                         onClick={() => {
                           try {
-                            URL.revokeObjectURL(selectedImage);
+                            if (
+                              selectedImage &&
+                              selectedImage.startsWith("blob:")
+                            ) {
+                              URL.revokeObjectURL(selectedImage);
+                            }
                           } catch (e) {}
                           setSelectedImage(null);
                         }}
@@ -423,12 +471,13 @@ export default function QRCodeScanner() {
                   </div>
                 )}
               </div>
-              <button onClick={() => setShowImageScan(false)}>Back to Camera</button>
+              <button onClick={() => setShowImageScan(false)}>
+                Back to Camera
+              </button>
             </div>
           )}
-
-          <div style={{ marginTop: 12 }}>
-            
+          {cameraActive && (
+            <div style={{ marginTop: 12 }}>
               <div className="cameraPreview">
                 <video
                   ref={videoRef}
@@ -442,11 +491,65 @@ export default function QRCodeScanner() {
                   muted
                   autoPlay
                 />
-                <p style={{ fontSize: 12 }}>Camera active — point at a QR code</p>
-              </div>
-            
-          </div>
+                <p style={{ fontSize: 12 }}>
+                  Camera active — point at a QR code
+                </p>
 
+                <div
+                  style={{
+                    marginTop: 8,
+                    display: "flex",
+                    gap: 8,
+                    alignItems: "center",
+                  }}
+                >
+                  <button onClick={capturePhoto} disabled={!cameraActive}>
+                    Capture Photo
+                  </button>
+                  <button
+                    onClick={() => {
+                      const canvas = canvasRef.current;
+                      if (!canvas) return;
+                      const ctx = canvas.getContext("2d");
+                      if (!ctx) return;
+                      try {
+                        const vw = videoRef.current.videoWidth || 640;
+                        const vh = videoRef.current.videoHeight || 480;
+                        canvas.width = vw;
+                        canvas.height = vh;
+                        ctx.drawImage(videoRef.current, 0, 0, vw, vh);
+                        const decoded = tryDecodeFromCanvas();
+                        if (decoded) {
+                          setScannedText(decoded);
+                          callScanApi(decoded);
+                        } else {
+                          setError("No QR code found in captured frame");
+                        }
+                      } catch (e) {
+                        setError("Capture failed");
+                      }
+                    }}
+                  >
+                    Scan Current Frame
+                  </button>
+
+                  {selectedImage && (
+                    <img
+                      src={selectedImage}
+                      alt="captured preview"
+                      style={{
+                        width: 80,
+                        height: 60,
+                        objectFit: "cover",
+                        borderRadius: 6,
+                        border: "1px solid #ccc",
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           <canvas ref={canvasRef} style={{ display: "none" }} />
 
           {error && (
