@@ -1,3 +1,4 @@
+// src/components/QRCodeScanner.jsx
 import React, { useState, useRef, useEffect } from "react";
 import "../style/_qrcodescanner.scss";
 import { BsQrCodeScan } from "react-icons/bs";
@@ -14,6 +15,8 @@ export default function QRCodeScanner() {
   const [error, setError] = useState("");
   const [scannedText, setScannedText] = useState("");
   const [cameraActive, setCameraActive] = useState(false);
+  const [devices, setDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState("");
 
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -22,6 +25,19 @@ export default function QRCodeScanner() {
   const rafRef = useRef(null);
 
   useEffect(() => {
+    // get devices early (may be blocked until permission in some browsers)
+    // but we'll still try to enumerate for available cameras
+    (async () => {
+      try {
+        const list = await navigator.mediaDevices?.enumerateDevices?.();
+        if (list) {
+          setDevices(list.filter((d) => d.kind === "videoinput"));
+        }
+      } catch (e) {
+        // ignore, we will re-enumerate later if needed
+      }
+    })();
+
     return () => {
       stopCamera();
       if (selectedImage) {
@@ -30,6 +46,7 @@ export default function QRCodeScanner() {
         } catch (e) {}
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function tryDecodeFromCanvas() {
@@ -145,58 +162,81 @@ export default function QRCodeScanner() {
     }
     setSelectedImage(null);
 
+    // Basic capability checks
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setError("Your browser does not support camera access (navigator.mediaDevices missing)");
+      console.error("navigator.mediaDevices missing");
+      return;
+    }
+
+    if (window.self !== window.top) {
+      console.warn("Page appears inside an iframe. Parent must allow camera with allow=\"camera\" on the iframe.");
+    }
+
     try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setError("Your browser does not support camera access (navigator.mediaDevices missing)");
-        console.error("navigator.mediaDevices missing");
-        return;
-      }
-
-      if (window.self !== window.top) {
-        console.warn("Page appears inside an iframe. Parent must allow camera with allow=\"camera\" on the iframe.");
-      }
-
+      // Try to enumerate again — useful if user previously denied or permission prompt not shown earlier.
+      let deviceList = [];
       try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const hasVideoInput = devices.some((d) => d.kind === "videoinput");
-        if (!hasVideoInput) {
-          setError("No camera devices found on this machine");
-          console.error("No videoinput devices:", devices);
-          return;
-        }
+        deviceList = await navigator.mediaDevices.enumerateDevices();
+        setDevices(deviceList.filter((d) => d.kind === "videoinput"));
       } catch (enumErr) {
-        console.warn("enumerateDevices failed:", enumErr);
+        // ignore, continue — some browsers require permission first
       }
+
+      // If user selected a device, use it; otherwise prefer environment camera
+      const videoConstraints = {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode: selectedDeviceId ? undefined : { ideal: "environment" },
+        deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
+      };
 
       const constraints = {
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
+        video: videoConstraints,
         audio: false,
       };
 
+      // Request camera
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
 
+      // Attach to video element
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.playsInline = true;
+        // prefer using srcObject; set playsInline for iOS
+        videoRef.current.setAttribute("playsinline", "true");
         videoRef.current.muted = true;
+        videoRef.current.srcObject = stream;
+
+        // Wait for metadata (size) then play
+        const playPromise = new Promise((resolve, reject) => {
+          const vd = videoRef.current;
+          const onLoaded = () => {
+            vd.removeEventListener("loadedmetadata", onLoaded);
+            resolve();
+          };
+          const onError = (e) => {
+            vd.removeEventListener("error", onError);
+            reject(e);
+          };
+          vd.addEventListener("loadedmetadata", onLoaded);
+          vd.addEventListener("error", onError);
+          // fallback timeout if event doesn't fire
+          setTimeout(() => resolve(), 500);
+        });
 
         try {
+          await playPromise;
           await videoRef.current.play();
           setCameraActive(true);
           rafRef.current = requestAnimationFrame(scanVideoFrame);
         } catch (playErr) {
           console.error("Video play error", playErr);
-          setError("Unable to start video playback. Check browser autoplay/permission settings");
+          setError("Unable to start video playback. Check browser autoplay/permission settings and allow camera access for this site.");
         }
       }
     } catch (err) {
       console.error("Camera error (getUserMedia failed):", err);
-
+      // Provide friendly error messages for common errors
       if (err && err.name) {
         switch (err.name) {
           case "NotAllowedError":
@@ -237,7 +277,10 @@ export default function QRCodeScanner() {
     if (videoRef.current) {
       try {
         videoRef.current.pause();
-        videoRef.current.srcObject = null;
+        // detach stream from video element
+        try {
+          videoRef.current.srcObject = null;
+        } catch (e) {}
       } catch (e) {}
     }
     if (streamRef.current) {
@@ -259,6 +302,7 @@ export default function QRCodeScanner() {
     const vw = video.videoWidth;
     const vh = video.videoHeight;
     if (vw === 0 || vh === 0) {
+      // not ready yet
       setTimeout(() => {
         rafRef.current = requestAnimationFrame(scanVideoFrame);
       }, 100);
@@ -298,6 +342,22 @@ export default function QRCodeScanner() {
                   alignItems: "center",
                 }}
               >
+                {/* If there are multiple cameras, allow device selection */}
+                {devices.length > 1 && (
+                  <select
+                    value={selectedDeviceId}
+                    onChange={(e) => setSelectedDeviceId(e.target.value)}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <option value="">Use default / environment</option>
+                    {devices.map((d) => (
+                      <option key={d.deviceId} value={d.deviceId}>
+                        {d.label || `Camera ${d.deviceId}`}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
                 {!cameraActive ? (
                   <button onClick={startCamera}>Start Camera Scan</button>
                 ) : (
