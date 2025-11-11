@@ -5,15 +5,6 @@ import { MdOutlineImageSearch } from "react-icons/md";
 import axios from "axios";
 import jsQR from "jsqr";
 
-/**
- * QRCodeScanner
- * - Improved startCamera with detailed error handling & device checks
- * - Safer cleanup on unmount
- * - Buttons used for toggles (no accidental route navigations)
- *
- * Usage: import and render <QRCodeScanner />
- */
-
 export default function QRCodeScanner() {
   const [showImageScan, setShowImageScan] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -39,7 +30,6 @@ export default function QRCodeScanner() {
         } catch (e) {}
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function tryDecodeFromCanvas() {
@@ -60,7 +50,6 @@ export default function QRCodeScanner() {
   async function callScanApi(scanned) {
     setError("");
     try {
-      // NOTE: keep your real URL here
       const res = await axios.get(
         `https://www.izemak.com/azimak/public/api/scan/${encodeURIComponent(
           scanned
@@ -157,19 +146,16 @@ export default function QRCodeScanner() {
     setSelectedImage(null);
 
     try {
-      // Capability check
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         setError("Your browser does not support camera access (navigator.mediaDevices missing).");
         console.error("navigator.mediaDevices missing");
         return;
       }
 
-      // If page is inside an iframe warn (parent must allow camera)
       if (window.self !== window.top) {
         console.warn("Page appears inside an iframe. Parent must allow camera with allow=\"camera\" on the iframe.");
       }
 
-      // Try to enumerate devices to detect if any video input exists
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const hasVideoInput = devices.some((d) => d.kind === "videoinput");
@@ -179,7 +165,6 @@ export default function QRCodeScanner() {
           return;
         }
       } catch (enumErr) {
-        // Not fatal — continue to request permission (enumerateDevices might be restricted)
         console.warn("enumerateDevices failed:", enumErr);
       }
 
@@ -196,10 +181,9 @@ export default function QRCodeScanner() {
       streamRef.current = stream;
 
       if (videoRef.current) {
-        // Attach stream and attempt to play
         videoRef.current.srcObject = stream;
         videoRef.current.playsInline = true;
-        videoRef.current.muted = true; // helps autoplay in some browsers
+        videoRef.current.muted = true;
 
         try {
           await videoRef.current.play();
@@ -207,7 +191,7 @@ export default function QRCodeScanner() {
           rafRef.current = requestAnimationFrame(scanVideoFrame);
         } catch (playErr) {
           console.error("Video play error", playErr);
-          setError("Unable to start video playback. Check browser autoplay/permission settings.");
+          setError("Unable to start video playback. Check browser autoplay/permission settings");
         }
       }
     } catch (err) {
@@ -218,25 +202,25 @@ export default function QRCodeScanner() {
           case "NotAllowedError":
           case "SecurityError":
           case "PermissionDeniedError":
-            setError("Camera access denied. Please allow camera access in your browser settings for this site.");
+            setError("Camera access denied. Please allow camera access in your browser settings for this site");
             break;
           case "NotFoundError":
           case "OverconstrainedError":
           case "DevicesNotFoundError":
-            setError("No compatible camera found on this device.");
+            setError("No compatible camera found on this device");
             break;
           case "NotReadableError":
           case "TrackStartError":
-            setError("Camera is already in use by another application.");
+            setError("Camera is already in use by another application");
             break;
           default:
             setError("Camera access failed: " + (err.message || err.name));
         }
       } else {
         if (window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
-          setError("Camera requires HTTPS or localhost to work.");
+          setError("Camera requires HTTPS or localhost to work");
         } else {
-          setError("Camera access denied or not available.");
+          setError("Camera access denied or not available");
         }
       }
     }
@@ -275,7 +259,6 @@ export default function QRCodeScanner() {
     const vw = video.videoWidth;
     const vh = video.videoHeight;
     if (vw === 0 || vh === 0) {
-      // video metadata not ready
       setTimeout(() => {
         rafRef.current = requestAnimationFrame(scanVideoFrame);
       }, 100);
@@ -355,7 +338,7 @@ export default function QRCodeScanner() {
                   </div>
                 ) : (
                   <div className="preview">
-                    <p>Image ready to scan!</p>
+                    <p>Image ready to scan</p>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
                         onClick={() => {
@@ -399,7 +382,7 @@ export default function QRCodeScanner() {
                   muted
                   autoPlay
                 />
-                <p style={{ fontSize: 12 }}>Camera active — point at a QR code.</p>
+                <p style={{ fontSize: 12 }}>Camera active — point at a QR code</p>
               </div>
             )}
           </div>
