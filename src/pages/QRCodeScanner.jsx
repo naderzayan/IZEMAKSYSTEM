@@ -14,13 +14,13 @@ export default function QRCodeScanner() {
   const [scanData, setScanData] = useState(null);
   const [error, setError] = useState("");
   const [scannedText, setScannedText] = useState("");
-  const fileInputRef = useRef(null);
+  const [cameraActive, setCameraActive] = useState(false);
 
+  const fileInputRef = useRef(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const rafRef = useRef(null);
-  const [cameraActive, setCameraActive] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -37,9 +37,7 @@ export default function QRCodeScanner() {
     try {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const code = jsQR(imageData.data, imageData.width, imageData.height);
-      if (code) {
-        return code.data;
-      }
+      if (code) return code.data;
     } catch (e) {
       console.warn("decode error", e);
     }
@@ -52,7 +50,6 @@ export default function QRCodeScanner() {
       const res = await axios.get(
         `https://www.izemak.com/azimak/public/api/scan/${scanned}`
       );
-
       if (res.status === 200 && res.data) {
         setScanData({
           name: res.data.data?.name ?? "Not found",
@@ -62,32 +59,30 @@ export default function QRCodeScanner() {
         });
         setScanSuccess(true);
       } else {
-        setError("API returned unexpected response.");
-        console.warn("API response", res);
+        setError("API returned unexpected response");
       }
     } catch (err) {
       console.error("Scan failed", err);
-      setError("Scan failed (API). Please try again.");
+      setError("Scan failed (API). Please try again");
     }
   }
 
-  const handleFileSelect = async (event) => {
+  const handleFileSelect = (event) => {
     setError("");
     const file = event.target.files && event.target.files[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setError("Please select an image file.");
+      setError("Please select an image file");
       return;
     }
 
     stopCamera();
-
     const imageURL = URL.createObjectURL(file);
     if (selectedImage) URL.revokeObjectURL(selectedImage);
     setSelectedImage(imageURL);
 
     const img = new Image();
-    img.onload = async () => {
+    img.onload = () => {
       const canvas = canvasRef.current;
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
@@ -96,17 +91,15 @@ export default function QRCodeScanner() {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       const decoded = tryDecodeFromCanvas();
-
       if (decoded) {
         setScannedText(decoded);
-        await callScanApi(decoded);
+        callScanApi(decoded);
       } else {
         setError("No QR code found in image");
       }
-
     };
     img.onerror = () => {
-      setError("Failed to read image file.");
+      setError("Failed to read image file");
       URL.revokeObjectURL(imageURL);
       setSelectedImage(null);
     };
@@ -132,22 +125,41 @@ export default function QRCodeScanner() {
     setSelectedImage(null);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+      const constraints = {
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
-      });
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        videoRef.current.onloadedmetadata = async () => {
+          try {
+            await videoRef.current.play();
+            setCameraActive(true);
+            rafRef.current = requestAnimationFrame(scanVideoFrame);
+          } catch (err) {
+            console.error("Video play error", err);
+            setError("Unable to start camera playback");
+          }
+        };
       }
-      setCameraActive(true);
-      requestAnimationFrame(scanVideoFrame);
     } catch (e) {
-      console.error("camera error", e);
-      setError(
-        "Camera access denied or not available"
-      );
+      console.error("Camera error", e);
+      if (
+        window.location.protocol !== "https:" &&
+        window.location.hostname !== "localhost"
+      ) {
+        setError("Camera requires HTTPS or localhost to work");
+      } else {
+        setError("Camera access denied or not available");
+      }
     }
   }
 
@@ -177,7 +189,9 @@ export default function QRCodeScanner() {
     const vw = video.videoWidth;
     const vh = video.videoHeight;
     if (vw === 0 || vh === 0) {
-      rafRef.current = requestAnimationFrame(scanVideoFrame);
+      setTimeout(() => {
+        rafRef.current = requestAnimationFrame(scanVideoFrame);
+      }, 100);
       return;
     }
 
@@ -251,25 +265,18 @@ export default function QRCodeScanner() {
                       onChange={handleFileSelect}
                       style={{ display: "none" }}
                     />
-
-                    <button onClick={handleChooseImageClick}>
-                      Choose Image
-                    </button>
-
+                    <button onClick={handleChooseImageClick}>Choose Image</button>
                     <p>Or drop an image to scan</p>
                   </div>
                 ) : (
                   <div className="preview">
+                    <p>Image ready to scan!</p>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
                         onClick={() => {
                           const decoded = tryDecodeFromCanvas();
-                          if (decoded) {
-                            setScannedText(decoded);
-                            callScanApi(decoded);
-                          } else {
-                            setError("No QR code found in image.");
-                          }
+                          if (decoded) callScanApi(decoded);
+                          else setError("No QR code found in image");
                         }}
                       >
                         Scan Image Now
@@ -286,12 +293,7 @@ export default function QRCodeScanner() {
                   </div>
                 )}
               </div>
-
-              <Link
-                onClick={() => {
-                  setShowImageScan(false);
-                }}
-              >
+              <Link onClick={() => setShowImageScan(false)}>
                 Back to Camera
               </Link>
             </div>
@@ -302,12 +304,18 @@ export default function QRCodeScanner() {
               <div className="cameraPreview">
                 <video
                   ref={videoRef}
-                  style={{ width: "100%", maxHeight: 360 }}
+                  style={{
+                    width: "100%",
+                    maxHeight: 360,
+                    borderRadius: 12,
+                    background: "#000",
+                  }}
                   playsInline
                   muted
+                  autoPlay
                 />
                 <p style={{ fontSize: 12 }}>
-                  Camera active — point at a QR code
+                  Camera active — point at a QR code.
                 </p>
               </div>
             )}
@@ -316,7 +324,7 @@ export default function QRCodeScanner() {
           <canvas ref={canvasRef} style={{ display: "none" }} />
 
           {error && (
-            <div className="error" style={{ color: "red", marginTop: 8 }}>
+            <div className="error" style={{ marginTop: 8 }}>
               {error}
             </div>
           )}
@@ -324,7 +332,6 @@ export default function QRCodeScanner() {
       ) : (
         <div className="successfully">
           <h1>Scan successfully</h1>
-
           <table className="info-table">
             <tbody>
               <tr>
@@ -345,7 +352,6 @@ export default function QRCodeScanner() {
               </tr>
             </tbody>
           </table>
-
           <button onClick={handleRescan}>Rescan</button>
         </div>
       )}

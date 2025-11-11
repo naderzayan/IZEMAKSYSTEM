@@ -53,8 +53,12 @@ body {
     text-decoration: underline;
   }
 
+  p {
+    color: #fff;
+  }
+
   .error {
-    color: red !important;
+    color: red;
     margin-top: 1rem;
     text-align: center;
     width: 100%;
