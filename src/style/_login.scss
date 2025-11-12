@@ -53,3 +53,26 @@
     }
   }
 }
+
+.passwordInput {
+  position: relative;
+
+  input {
+    padding-left: 2.8em;
+  }
+}
+
+.eyeIcon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555;
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.eyeIcon:hover {
+  color: #000;
+}

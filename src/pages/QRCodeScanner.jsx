@@ -442,8 +442,9 @@ export default function QRCodeScanner() {
                 ) : (
                   <div className="preview">
                     <p>Image ready to scan</p>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
+                    <div>
+                       {/* style={{ display: "flex", gap: 8 }} */}
+                      {/* <button
                         onClick={() => {
                           const decoded = tryDecodeFromCanvas();
                           if (decoded) callScanApi(decoded);
@@ -451,7 +452,7 @@ export default function QRCodeScanner() {
                         }}
                       >
                         Scan Image Now
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => {
                           try {
@@ -491,21 +492,11 @@ export default function QRCodeScanner() {
                   muted
                   autoPlay
                 />
-                <p style={{ fontSize: 12 }}>
+                <p>
                   Camera active — point at a QR code
                 </p>
 
-                <div
-                  style={{
-                    marginTop: 8,
-                    display: "flex",
-                    gap: 8,
-                    alignItems: "center",
-                  }}
-                >
-                  <button onClick={capturePhoto} disabled={!cameraActive}>
-                    Capture Photo
-                  </button>
+                <div>
                   <button
                     onClick={() => {
                       const canvas = canvasRef.current;
