@@ -68,19 +68,34 @@ export default function QRCodeScanner() {
         )}`
       );
       if (res.status === 200 && res.data) {
+        // normalize values
+        const apiData = res.data.data || {};
+        const scanCount = parseInt(apiData.scan ?? apiData.scans ?? 0, 10);
+        const maxScan = parseInt(apiData.maxScan ?? apiData.max_scan ?? apiData.max ?? 0, 10);
+
         setScanData({
-          name: res.data.data?.name ?? "Not found",
-          phone: res.data.data?.phoneNumber ?? "Not found",
-          scan: res.data.data?.scan ?? "Not found",
-          maxScan: res.data.data?.maxScan ?? "Not found",
+          name: apiData.name ?? "Not found",
+          phone: apiData.phoneNumber ?? apiData.phone ?? "Not found",
+          scan: scanCount,
+          maxScan: maxScan,
+          raw: apiData,
         });
+
+        if (!Number.isNaN(maxScan) && !Number.isNaN(scanCount) && scanCount >= maxScan) {
+          setScanSuccess(false);
+          setError("you reached max scan limit");
+          return;
+        }
+
         setScanSuccess(true);
       } else {
         setError("API returned unexpected response");
       }
     } catch (err) {
       console.error("Scan failed", err);
-      setError("Scan failed (API). Please try again");
+      const serverMsg =
+        err?.response?.data?.message || err?.response?.data?.msg || null;
+      setError(serverMsg || "Scan failed (API). Please try again");
     }
   }
 
@@ -165,12 +180,6 @@ export default function QRCodeScanner() {
       );
       console.error("navigator.mediaDevices missing");
       return;
-    }
-
-    if (window.self !== window.top) {
-      console.warn(
-        'Page appears inside an iframe. Parent must allow camera with allow="camera" on the iframe.'
-      );
     }
 
     try {
@@ -443,16 +452,6 @@ export default function QRCodeScanner() {
                   <div className="preview">
                     <p>Image ready to scan</p>
                     <div>
-                       {/* style={{ display: "flex", gap: 8 }} */}
-                      {/* <button
-                        onClick={() => {
-                          const decoded = tryDecodeFromCanvas();
-                          if (decoded) callScanApi(decoded);
-                          else setError("No QR code found in image");
-                        }}
-                      >
-                        Scan Image Now
-                      </button> */}
                       <button
                         onClick={() => {
                           try {
@@ -492,9 +491,7 @@ export default function QRCodeScanner() {
                   muted
                   autoPlay
                 />
-                <p>
-                  Camera active — point at a QR code
-                </p>
+                <p>Camera active — point at a QR code</p>
 
                 <div>
                   <button
@@ -544,7 +541,7 @@ export default function QRCodeScanner() {
           <canvas ref={canvasRef} style={{ display: "none" }} />
 
           {error && (
-            <div className="error" style={{ marginTop: 8 }}>
+            <div className="error" style={{ marginTop: 8, color: "red" }}>
               {error}
             </div>
           )}
