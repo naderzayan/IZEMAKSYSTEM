@@ -4,6 +4,7 @@ import "../style/_mainPartyData.scss";
 import { FaUserEdit, FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { IoSearchSharp } from "react-icons/io5";
+import { RiUserSettingsLine } from "react-icons/ri";
 import Footer from "../components/Footer";
 
 export default function MainPartyData() {
@@ -179,9 +180,14 @@ export default function MainPartyData() {
                     </button>
                 </div>
                 <div>
-                    <Link to="/mainpartydata">
-                        <img src="/اعزمك-01.png" alt="" />
-                    </Link>
+                    <button className="accessbtn">
+                        <Link to='/access_staff'>
+                            <RiUserSettingsLine />
+                        </Link>
+                    </button>
+                </div>
+                <div>
+                    <img src="/اعزمك-01.png" alt="" />
                 </div>
             </div>
 

@@ -109,6 +109,15 @@
   }
 }
 
+.accessbtn {
+  background: none;
+  border: none;
+  svg {
+    color: #000;
+    font-size: 25px;
+  }
+}
+
 .pages {
   display: flex;
   justify-content: center;
