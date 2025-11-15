@@ -92,6 +92,9 @@
     text-align: center;
     padding: 2rem;
   }
+  .EditButton {
+    color: #000;
+  }
   .editBtn {
     background: none;
     border: none;
@@ -104,17 +107,25 @@
     background: none;
     border: none;
     svg {
+      color: #000;
       font-size: 25px;
     }
   }
 }
 
 .accessbtn {
-  background: none;
+  background: #7A6B88;
   border: none;
   svg {
-    color: #000;
+    color: #fff;
     font-size: 25px;
+  }
+}
+.accessbtn:hover {
+  background-color: #dbcce9;
+  border: 1px solid #000;
+  svg {
+    color: #000;
   }
 }
 

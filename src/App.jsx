@@ -14,6 +14,7 @@ import QRCodeScanner from "./pages/QRCodeScanner";
 import DeletedParties from "./pages/DeletedParties";
 import AccessSttaf from "./pages/AccessStaff";
 import CreateEmployee from "./pages/CreateEmployee";
+import GivingPermissions from "./pages/GivingPermissions";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/ar_qr_code_scanner" element={<QRCodeScanner />} />
           <Route path="/access_staff" element={<AccessSttaf />} />
           <Route path="/create_employee" element={<CreateEmployee />} />
+          <Route path="/giving_permissions" element={<GivingPermissions/>} />
         </Routes>
       </Router>
     </main>
