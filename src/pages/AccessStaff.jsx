@@ -102,7 +102,11 @@ export default function AccessStaff() {
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td><Link to='/giving_permissions'><FaExpeditedssl /></Link></td>
+                                        <td>
+                                            <Link to='/giving_permissions'>
+                                            <FaExpeditedssl />
+                                            </Link>
+                                            </td>
                                     </tr>
                         </tbody>
                     </table>

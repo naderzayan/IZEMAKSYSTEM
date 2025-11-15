@@ -5,6 +5,22 @@
     justify-content: space-between;
 }
 
+.img {
+    height: 100px;
+    width: 100px;
+    border: 1px solid #7A6B88;
+    background: #ede9f1;
+    border-radius: .5em;
+}
+
+.imgContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+
 h1 {
     text-align: center;
     padding: 1em;

@@ -1,10 +1,16 @@
 import React from "react";
 import "../style/_createemployee.scss";
 import Footer from "../components/Footer";
+import { Link } from "react-router";
 
 export default function CreateEmployee() {
   return (
     <div className="mainOfCreateEmployee">
+      <div className="imgContainer">
+              <Link to='/access_staff'>
+                <img src="اعزمك-01.png" alt="" className="img"/>
+              </Link>
+      </div>
       <h1>Create Employee</h1>
       <form className="createEmployee">
         <div className="form">
