@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../style/_accessStaff.scss";
 import { MdDelete } from "react-icons/md";
+import { IoSettingsSharp } from "react-icons/io5";
 import Footer from "../components/Footer";
 
 export default function AccessStaff() {
@@ -74,6 +75,13 @@ export default function AccessStaff() {
                 <button className="Btn">
                     <Link to="/create_employee">Add employee</Link>
                 </button>
+                {/* <div>
+                    <Link to='/giving_permissions'>
+                        <button className="givingPermissions">
+                            <IoSettingsSharp />
+                        </button>
+                    </Link>
+                </div> */}
                 <div>
                     <Link to='/mainpartydata'><img src="/اعزمك-01.png" alt="" /></Link>
                 </div>

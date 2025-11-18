@@ -34,6 +34,15 @@
     }
   }
 
+  .givingPermissions {
+    background: #7A6B88;
+    color: #fff;
+  }
+  .givingPermissions:hover {
+    background: #d2b0f1;
+    color: #000;
+  }
+
   img {
     height: 100px;
     width: 100px;
@@ -47,10 +56,14 @@
   width: 100%;
   border-collapse: collapse;
   background-color: #fdfdfb;
-  .EditButton {
-    background: none;
-    border: none;
+
+  svg {
+    font-size: 25px;
+    color: #7A6B88;
     cursor: pointer;
+  }
+  svg:hover {
+    color: #d2b0f1;
   }
 
   th, td {
