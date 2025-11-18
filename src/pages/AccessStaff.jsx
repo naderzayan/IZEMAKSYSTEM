@@ -113,7 +113,7 @@ export default function AccessStaff() {
                                 className="prev"
                                 onClick={goToPrevPage}
                             >
-                                السابقة
+                                Previous
                             </button>
                         )}
 
@@ -124,7 +124,7 @@ export default function AccessStaff() {
                             onClick={goToNextPage}
                             disabled={currentPage === lastPage}
                         >
-                            التالية
+                            Next
                         </button>
                     </div>
                 </>

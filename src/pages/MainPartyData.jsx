@@ -271,7 +271,7 @@ export default function MainPartyData() {
                                 className="prev"
                                 onClick={goToPrevPage}
                             >
-                                السابقة
+                                Previous
                             </button>
                         )}
 
@@ -282,7 +282,7 @@ export default function MainPartyData() {
                             onClick={goToNextPage}
                             disabled={currentPage === lastPage}
                         >
-                            التالية
+                            Next
                         </button>
                     </div>
                 </>
