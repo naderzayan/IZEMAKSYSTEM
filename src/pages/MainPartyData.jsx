@@ -252,13 +252,13 @@ export default function MainPartyData() {
                             ) : searchPerformed ? (
                                 <tr>
                                     <td colSpan="4" className="empty">
-                                        لا توجد نتائج مطابقة
+                                        No matching results found
                                     </td>
                                 </tr>
                             ) : (
                                 <tr>
                                     <td colSpan="4" className="empty">
-                                        لا يوجد بيانات بالجدول
+                                        There is no data in the table
                                     </td>
                                 </tr>
                             )}
