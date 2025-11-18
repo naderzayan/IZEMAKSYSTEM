@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../style/_accessStaff.scss";
-import { FaExpeditedssl } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import Footer from "../components/Footer";
 
 export default function AccessStaff() {
@@ -92,8 +92,7 @@ export default function AccessStaff() {
                                 <th>Name</th>
                                 <th>Phone Number</th>
                                 <th>Email</th>
-                                <th>ID</th>
-                                <th>Modify permissions</th>
+                                <th>Delete</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -101,12 +100,9 @@ export default function AccessStaff() {
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td></td>
                                         <td>
-                                            <Link to='/giving_permissions'>
-                                            <FaExpeditedssl />
-                                            </Link>
-                                            </td>
+                                            <MdDelete />
+                                        </td>
                                     </tr>
                         </tbody>
                     </table>

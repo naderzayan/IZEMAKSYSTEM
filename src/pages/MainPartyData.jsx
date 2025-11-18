@@ -204,6 +204,7 @@ export default function MainPartyData() {
                                 <th>Party name</th>
                                 <th>Party time</th>
                                 <th>Party address</th>
+                                <th>Add Employee</th>
                                 <th>procedures</th>
                             </tr>
                         </thead>
@@ -222,6 +223,11 @@ export default function MainPartyData() {
                                         </td>
                                         <td>{party.time}</td>
                                         <td>{party.address}</td>
+                                        <td>
+                                            <button className="AddEmployee">
+                                                Add Employee
+                                            </button>
+                                        </td>
                                         <td>
                                             <button
                                                 className="deleteBtn"

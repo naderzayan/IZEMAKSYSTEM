@@ -28,11 +28,6 @@ export default function CreateEmployee() {
             <label>Email</label>
             <input type="email" />
           </div>
-
-          <div className="inputs">
-            <label>ID</label>
-            <input type="text" />
-          </div>
           <div className="btnContainer">
             <button type="submit">Submit</button>
           </div>
