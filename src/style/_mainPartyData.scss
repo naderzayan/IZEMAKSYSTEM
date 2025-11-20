@@ -70,6 +70,7 @@
   width: 100%;
   border-collapse: collapse;
   background-color: #fdfdfb;
+
   .EditButton {
     background: none;
     border: none;
@@ -80,6 +81,7 @@
     border: 1px solid #000;
     padding: 0.8rem;
     text-align: center;
+    vertical-align: middle;
   }
 
   th {
@@ -98,6 +100,10 @@
   .AddEmployee {
     background: #7A6B88;
     color: #000;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
   }
   .AddEmployee:hover {
     background: #dbcce9;
@@ -118,6 +124,91 @@
       color: #000;
       font-size: 25px;
     }
+  }
+
+  .employeeCell {
+    position: relative;
+  }
+
+  /* dropdown background requested by user and centered under button/list */
+  .employeeDropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    background: #dbcce9;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    list-style: none;
+    padding: 8px;
+    margin: 0;
+    min-width: 180px;
+    border-radius: 6px;
+  }
+
+  .employeeItem {
+    padding: 6px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .employeeBtn {
+    background: transparent;
+    border: none;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  .employeeBtn:hover,
+  .employeeItem:hover .employeeBtn {
+    background: #7A6B88;
+    color: #fff;
+  }
+
+  .employeeAdding {
+    margin-left: 8px;
+    font-size: 12px;
+  }
+
+  /* assigned list (badges) shown instead of button */
+  .assignedList {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .assignedItem {
+    background: #7A6B88;
+    color: #fff;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+  }
+
+  .AddMoreBtn {
+    background: transparent;
+    border: 1px solid #7A6B88;
+    color: #7A6B88;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    cursor: pointer;
+  }
+  .AddMoreBtn:hover {
+    background: #7A6B88;
+    color: #000;
   }
 }
 
@@ -158,30 +249,6 @@
     border: 1px solid #000;
     cursor: pointer;
   }
-}
-
-.pages {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-  gap: 1rem;
-  padding-bottom: 1em;
-
-  button {
-    padding: 0.5rem 1rem;
-    background-color: #7A6B88;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-  }
-
-  button:hover {
-    background: #dbcce9;
-    color: #000;
-    border: 1px solid #000;
-    cursor: pointer;
-  }
 
   .pageNumber.active {
     background-color: #dbcce9;
@@ -190,7 +257,6 @@
     font-weight: bold;
   }
 }
-
 
 .modalOverlay {
     position: fixed;
@@ -302,4 +368,3 @@
   justify-content: center;
   gap: 15px;
 }
-

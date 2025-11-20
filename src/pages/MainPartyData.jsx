@@ -29,28 +29,32 @@ export default function MainPartyData() {
 
   const baseUrl = "https://www.izemak.com/azimak/public/api/parties";
 
-  const fetchParties = (page = 1) => {
+  const fetchParties = async (page = 1) => {
     setLoading(true);
-    fetch(`${baseUrl}?page=${page}`, {
-      headers: { Accept: "application/json" },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setParties(data.data || []);
-        setLastPage(data.meta?.last_page || 1);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Fetch error:", error);
-        setLoading(false);
+    try {
+      const response = await fetch(`${baseUrl}?page=${page}`, {
+        headers: { Accept: "application/json" },
       });
+      const data = await response.json();
+      const normalized = (data.data || []).map((p) => ({
+        ...p,
+        employees: Array.isArray(p.employees) ? p.employees : [],
+      }));
+      setParties(normalized);
+      setLastPage(data.meta?.last_page || 1);
+    } catch (error) {
+      console.error("Fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchEmployees = async () => {
     try {
-      const res = await fetch("https://www.izemak.com/azimak/public/api/employees", {
-        headers: { Accept: "application/json" },
-      });
+      const res = await fetch(
+        "https://www.izemak.com/azimak/public/api/employees",
+        { headers: { Accept: "application/json" } }
+      );
       if (!res.ok) throw new Error("no employees API");
       const data = await res.json();
       setEmployees(data?.data || data || []);
@@ -75,22 +79,20 @@ export default function MainPartyData() {
     setShowModal(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteIndex === null) return;
-    const deleteUrl =
-      "https://www.izemak.com/azimak/public/api/deleteparty/" + parties[deleteIndex].id;
-    fetch(deleteUrl, {
-      method: "DELETE",
-      headers: { Accept: "application/json" },
-    })
-      .then(() => {
-        const updatedParties = parties.filter((_, i) => i !== deleteIndex);
-        setParties(updatedParties);
-        setShowModal(false);
-        setDeleteIndex(null);
-        setDeletePartyName("");
-      })
-      .catch((err) => console.error("Delete error:", err));
+    try {
+      const deleteUrl =
+        "https://www.izemak.com/azimak/public/api/deleteparty/" +
+        parties[deleteIndex].id;
+      await fetch(deleteUrl, { method: "DELETE", headers: { Accept: "application/json" } });
+      setParties(parties.filter((_, i) => i !== deleteIndex));
+      setShowModal(false);
+      setDeleteIndex(null);
+      setDeletePartyName("");
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   const handleSearch = () => {
@@ -121,29 +123,23 @@ export default function MainPartyData() {
 
   const handleEditSubmit = async () => {
     if (!editPartyId || !editPartyName.trim()) return;
-
     try {
-      const response = await fetch("https://www.izemak.com/azimak/public/api/update/party", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: editPartyId,
-          name: editPartyName,
-        }),
-      });
-
+      const response = await fetch(
+        "https://www.izemak.com/azimak/public/api/update/party",
+        {
+          method: "POST",
+          headers: { Accept: "application/json", "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editPartyId, name: editPartyName }),
+        }
+      );
       const data = await response.json();
-
       if (data.success || response.ok) {
-        const updated = parties.map((p) => (p.id === editPartyId ? { ...p, name: editPartyName } : p));
+        const updated = parties.map((p) =>
+          p.id === editPartyId ? { ...p, name: editPartyName } : p
+        );
         setParties(updated);
         setShowEditModal(false);
-      } else {
-        alert("error");
-      }
+      } else alert("error");
     } catch (error) {
       console.error("Edit error:", error);
     }
@@ -152,14 +148,11 @@ export default function MainPartyData() {
   const renderPageNumbers = () => {
     const pages = [];
     const maxPagesToShow = 5;
-
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(lastPage, startPage + maxPagesToShow - 1);
-
     if (endPage - startPage < maxPagesToShow - 1) {
       startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
-
     for (let i = startPage; i <= endPage; i++) {
       pages.push(
         <button
@@ -171,7 +164,6 @@ export default function MainPartyData() {
         </button>
       );
     }
-
     return pages;
   };
 
@@ -180,32 +172,40 @@ export default function MainPartyData() {
   };
 
   const addEmployeeToParty = async (partyId, employee) => {
-    setAddingIndex(partyId);
-    try {
-      const url = "https://www.izemak.com/azimak/public/api/add-employee-to-party";
-      const body = { partyId, employeeId: employee.id };
+    const party = parties.find((p) => p.id === partyId);
+    if (party?.employees?.some((e) => e.id === employee.id)) {
+      setOpenDropdownIndex(null);
+      alert(`${employee.name} موجود بالفعل فى الحفلة`);
+      return;
+    }
 
+    setAddingIndex(partyId);
+
+    try {
+      const url = "https://www.izemak.com/azimak/public/api/party/employee";
       const res = await fetch(url, {
         method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ party_id: partyId, employee_id: employee.id }),
       });
-
       const data = await res.json();
 
       if (res.ok || data.success) {
-        alert(`تم إضافة ${employee.name} الى الحفلة بنجاح`);
+        setParties((prev) =>
+          prev.map((p) =>
+            p.id === partyId
+              ? { ...p, employees: [...p.employees, employee] }
+              : p
+          )
+        );
         setOpenDropdownIndex(null);
       } else {
         console.error("Add employee failed:", data);
-        alert("فشل إضافة الموظف — تأكد من ال API.");
+        alert("Failed to add employee");
       }
     } catch (err) {
       console.error("Add employee error:", err);
-      alert("حدث خطأ أثناء إضافة الموظف.");
+      alert("Error");
     } finally {
       setAddingIndex(null);
     }
@@ -218,20 +218,13 @@ export default function MainPartyData() {
           <Link to="/createnewparty">Add a new party</Link>
         </button>
         <div className="search">
-          <button className="Btn" onClick={handleSearch}>
-            search
-          </button>
+          <button className="Btn" onClick={handleSearch}>search</button>
           <IoSearchSharp />
           <input
             type="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleSearch();
-              }
-            }}
+            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
           />
         </div>
         <div>
@@ -241,13 +234,11 @@ export default function MainPartyData() {
         </div>
         <div>
           <button className="accessbtn">
-            <Link to="/access_staff">
-              <RiUserSettingsLine />
-            </Link>
+            <Link to="/access_staff"><RiUserSettingsLine /></Link>
           </button>
         </div>
         <div>
-          <img src="/اعزمك-01.png" alt="" />
+          <img src="/اعزمك-01.png" alt="logo" />
         </div>
       </div>
 
@@ -280,74 +271,48 @@ export default function MainPartyData() {
                     </td>
                     <td>{party.time}</td>
                     <td>{party.address}</td>
-                    <td style={{ position: "relative" }}>
-                      <button
-                        className="AddEmployee"
-                        onClick={() => toggleDropdown(index)}
-                        aria-haspopup="listbox"
-                        aria-expanded={openDropdownIndex === index}
-                      >
-                        Add Employee
-                      </button>
+
+                    <td className="employeeCell">
+                      {party.employees?.length > 0 ? (
+                        <div className="assignedList">
+                          {party.employees.map((e) => (
+                            <span key={e.id} className="assignedItem">{e.name}</span>
+                          ))}
+                        </div>
+                      ) : (
+                        <button className="AddEmployee" onClick={() => toggleDropdown(index)}>
+                          Add Employee
+                        </button>
+                      )}
 
                       {openDropdownIndex === index && (
-                        <ul
-                          role="listbox"
-                          className="employeeDropdown"
-                          style={{
-                            position: "absolute",
-                            zIndex: 50,
-                            background: "#fff",
-                            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                            listStyle: "none",
-                            padding: 8,
-                            marginTop: 8,
-                            minWidth: 180,
-                            borderRadius: 6,
-                          }}
-                        >
+                        <ul role="listbox" className="employeeDropdown">
                           {employees.length > 0 ? (
                             employees.map((emp) => (
-                              <li
-                                key={emp.id}
-                                style={{
-                                  padding: "6px 8px",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <span
+                              <li key={emp.id} className="employeeItem">
+                                <button
+                                  type="button"
                                   onClick={() => addEmployeeToParty(party.id, emp)}
-                                  role="option"
-                                  aria-selected={false}
+                                  className="employeeBtn"
+                                  disabled={addingIndex === party.id}
                                 >
                                   {emp.name}
-                                </span>
-                                {addingIndex === party.id && (
-                                  <small style={{ marginLeft: 8 }}>adding...</small>
-                                )}
+                                </button>
                               </li>
                             ))
                           ) : (
-                            <li style={{ padding: 8 }}>No employees</li>
+                            <li className="employeeItem">No employees</li>
                           )}
                         </ul>
                       )}
                     </td>
+
                     <td>
                       <button className="deleteBtn" onClick={() => confirmDelete(index)}>
                         <MdDelete />
                       </button>
                       <button className="editBtn">
-                        <Link
-                          to="/AddInvitors"
-                          state={{
-                            partyId: party?.id,
-                            partyName: party?.name,
-                          }}
-                        >
+                        <Link to="/AddInvitors" state={{ partyId: party?.id, partyName: party?.name }}>
                           <FaUserEdit />
                         </Link>
                       </button>
@@ -355,33 +320,17 @@ export default function MainPartyData() {
                   </tr>
                 ))
               ) : searchPerformed ? (
-                <tr>
-                  <td colSpan="5" className="empty">
-                    No matching results found
-                  </td>
-                </tr>
+                <tr><td colSpan="5" className="empty">No matching results found</td></tr>
               ) : (
-                <tr>
-                  <td colSpan="5" className="empty">
-                    There is no data in the table
-                  </td>
-                </tr>
+                <tr><td colSpan="5" className="empty">There is no data in the table</td></tr>
               )}
             </tbody>
           </table>
 
           <div className="pages">
-            {currentPage > 5 && (
-              <button className="prev" onClick={goToPrevPage}>
-                Previous
-              </button>
-            )}
-
+            {currentPage > 5 && <button className="prev" onClick={goToPrevPage}>Previous</button>}
             {renderPageNumbers()}
-
-            <button className="next" onClick={goToNextPage} disabled={currentPage === lastPage}>
-              Next
-            </button>
+            <button className="next" onClick={goToNextPage} disabled={currentPage === lastPage}>Next</button>
           </div>
         </>
       )}
@@ -391,12 +340,8 @@ export default function MainPartyData() {
           <div className="modal">
             <h3> Are you sure you want to delete {deletePartyName} ؟</h3>
             <div className="modalActions">
-              <button className="confirmBtn" onClick={handleDelete}>
-                yes
-              </button>
-              <button className="cancelBtn" onClick={() => setShowModal(false)}>
-                no
-              </button>
+              <button className="confirmBtn" onClick={handleDelete}>yes</button>
+              <button className="cancelBtn" onClick={() => setShowModal(false)}>no</button>
             </div>
           </div>
         </div>
@@ -408,12 +353,8 @@ export default function MainPartyData() {
             <h3>Edit party name</h3>
             <input type="text" value={editPartyName} onChange={(e) => setEditPartyName(e.target.value)} />
             <div className="modalActions">
-              <button className="confirmBtn" onClick={handleEditSubmit}>
-                Save
-              </button>
-              <button className="cancelBtn" onClick={() => setShowEditModal(false)}>
-                Cancel
-              </button>
+              <button className="confirmBtn" onClick={handleEditSubmit}>Save</button>
+              <button className="cancelBtn" onClick={() => setShowEditModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
