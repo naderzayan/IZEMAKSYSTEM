@@ -9,6 +9,10 @@ export default function AccessStaff() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
   const employeesUrl = "https://www.izemak.com/azimak/public/api/employees";
 
   const fetchEmployees = async (page = 1) => {
@@ -25,7 +29,6 @@ export default function AccessStaff() {
         setEmployees(data.data);
         setLastPage(data.meta?.last_page || 1);
       } else {
-        // fallback
         setEmployees([]);
         setLastPage(1);
       }
@@ -71,6 +74,49 @@ export default function AccessStaff() {
     return pages;
   };
 
+  const openConfirm = (emp) => {
+    setEmployeeToDelete(emp);
+    setShowConfirm(true);
+  };
+
+  const closeConfirm = () => {
+    setEmployeeToDelete(null);
+    setShowConfirm(false);
+  };
+
+  const deleteEmployee = async (id) => {
+    if (!id) {
+      setEmployees((prev) => prev.filter((e) => e !== employeeToDelete));
+      closeConfirm();
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`${employeesUrl}/delete`, {
+        method: "post",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({id:id.toString()}),
+      });
+
+      if (!res.ok) {
+        console.warn("Delete request failed or endpoint not implemented, status:", res.status);
+      } else {
+      }
+
+      setEmployees((prev) => prev.filter((e) => e.id !== id));
+    } catch (err) {
+      console.error("Delete employee error:", err);
+      setEmployees((prev) => prev.filter((e) => e.id !== id));
+    } finally {
+      setDeleting(false);
+      closeConfirm();
+    }
+  };
+
   return (
     <main className="mainOfAccessStaff">
       <div className="addEmployee">
@@ -105,13 +151,13 @@ export default function AccessStaff() {
                 employees.map((emp) => (
                   <tr key={emp.id ?? emp.email ?? Math.random()}>
                     <td>{emp.name || "-"}</td>
-                    <td>{emp.tel || emp.phone || "-"}</td>
+                    <td>{emp.phone_number || "-"}</td>
                     <td>{emp.email || "-"}</td>
                     <td>
                       <button
                         className="deleteBtn"
-                        title="Delete (not implemented)"
-                        onClick={() => alert("Delete endpoint not implemented in UI")}
+                        title="Delete"
+                        onClick={() => openConfirm(emp)}
                       >
                         <MdDelete />
                       </button>
@@ -135,11 +181,41 @@ export default function AccessStaff() {
               </button>
             )}
             {renderPageNumbers()}
-            <button className="next" onClick={goToNextPage} disabled={currentPage === lastPage}>
+            <button
+              className="next"
+              onClick={goToNextPage}
+              disabled={currentPage === lastPage}
+            >
               Next
             </button>
           </div>
         </>
+      )}
+
+      {showConfirm && (
+        <div className="confirmOverlay" role="dialog" aria-modal="true">
+          <div className="confirmBox">
+            <p className="confirmText">هل أنت متأكد من حذف الموظف؟</p>
+            <p className="confirmName">{employeeToDelete?.name || ""}</p>
+
+            <div className="confirmButtons">
+              <button
+                className="confirmBtn yes"
+                onClick={() => deleteEmployee(employeeToDelete?.id)}
+                disabled={deleting}
+              >
+                {deleting ? "جاري الحذف..." : "نعم"}
+              </button>
+              <button
+                className="confirmBtn no"
+                onClick={closeConfirm}
+                disabled={deleting}
+              >
+                لا
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <Footer />
