@@ -273,11 +273,9 @@ export default function MainPartyData() {
                     <td>{party.address}</td>
 
                     <td className="employeeCell">
-                      {party.employees?.length > 0 ? (
-                        <div className="assignedList">
-                          {party.employees.map((e) => (
-                            <span key={e.id} className="assignedItem">{e.name}</span>
-                          ))}
+                      {party.employee?.length > 0 ? (
+                        <div className="assignedList">                          
+                            <span className="assignedItem">{party.employee}</span>                          
                         </div>
                       ) : (
                         <button className="AddEmployee" onClick={() => toggleDropdown(index)}>
