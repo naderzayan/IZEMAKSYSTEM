@@ -156,3 +156,38 @@
     animation: spin 1s linear infinite;
   }
 }
+
+.deleteBtn {
+  background: #7A6B88;
+  svg {
+    color: #fff;
+  }
+}
+.deleteBtn:hover {
+  background: #d2b0f1;
+  svg {
+    color: #000;
+  }
+}
+
+.confirmButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  .confirmBtn_yes {
+    background: #7A6B88;
+    color: #fff;
+  }
+  .confirmBtn_yes:hover {
+    background: #d2b0f1;
+    color: #000;
+  }
+  .confirmBtn_no {
+    background-color: #7A6B88;
+    color: #fff;
+  }
+  .confirmBtn_no:hover {
+    background: #d2b0f1;
+    color: #000;
+  }
+}

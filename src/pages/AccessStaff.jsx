@@ -86,7 +86,6 @@ export default function AccessStaff() {
 
   const deleteEmployee = async (id) => {
     if (!id) {
-      setEmployees((prev) => prev.filter((e) => e !== employeeToDelete));
       closeConfirm();
       return;
     }
@@ -99,12 +98,11 @@ export default function AccessStaff() {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({id:id.toString()}),
+        body: JSON.stringify({ id: id.toString() }),
       });
 
       if (!res.ok) {
         console.warn("Delete request failed or endpoint not implemented, status:", res.status);
-      } else {
       }
 
       setEmployees((prev) => prev.filter((e) => e.id !== id));
@@ -200,14 +198,14 @@ export default function AccessStaff() {
 
             <div className="confirmButtons">
               <button
-                className="confirmBtn yes"
+                className="confirmBtn_yes"
                 onClick={() => deleteEmployee(employeeToDelete?.id)}
                 disabled={deleting}
               >
-                {deleting ? "جاري الحذف..." : "نعم"}
+                نعم
               </button>
               <button
-                className="confirmBtn no"
+                className="confirmBtn_no"
                 onClick={closeConfirm}
                 disabled={deleting}
               >

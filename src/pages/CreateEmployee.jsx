@@ -11,16 +11,19 @@ export default function CreateEmployee() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
   const addEmployeeUrl = "https://www.izemak.com/azimak/public/api/employees/add";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!name.trim() || !email.trim() || !password || !tel.trim()) {
       alert("Please fill all fields.");
       return;
     }
 
     setSubmitting(true);
+
     try {
       const payload = {
         name: name.trim(),
@@ -28,6 +31,7 @@ export default function CreateEmployee() {
         password: password,
         tel: tel.trim(),
       };
+
       const res = await fetch(addEmployeeUrl, {
         method: "POST",
         headers: {
@@ -40,8 +44,7 @@ export default function CreateEmployee() {
       const data = await res.json();
 
       if (res.ok || data.success) {
-        alert("Employee added successfully");
-        navigate("/access_staff");
+        navigate("/access_staff"); // بدون alert
       } else {
         console.error("Add employee failed:", data);
         alert("Failed to add employee. Check console for details.");
@@ -61,7 +64,9 @@ export default function CreateEmployee() {
           <img src="اعزمك-01.png" alt="logo" className="img" />
         </Link>
       </div>
+
       <h1>Create Employee</h1>
+
       <form className="createEmployee" onSubmit={handleSubmit}>
         <div className="form">
           <div className="inputs">
@@ -86,7 +91,7 @@ export default function CreateEmployee() {
 
           <div className="btnContainer">
             <button type="submit" disabled={submitting}>
-              {submitting ? "Submitting" : "Submit"}
+              Submit
             </button>
           </div>
         </div>
