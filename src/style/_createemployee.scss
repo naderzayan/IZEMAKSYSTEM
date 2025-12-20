@@ -1,0 +1,84 @@
+.mainOfCreateEmployee {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.img {
+    height: 100px;
+    width: 100px;
+    border: 1px solid #7A6B88;
+    background: #ede9f1;
+    border-radius: .5em;
+}
+
+.imgContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+
+h1 {
+    text-align: center;
+    padding: 1em;
+    color: #000;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.createEmployee {
+    flex: 1;                        
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form {
+    border: 1px solid #7a6b88;
+    padding: 2em;
+    background: #7a6b88;
+    border-radius: .5em;
+}
+
+.inputs {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1em;
+
+    label {
+        text-align: left;
+        margin-bottom: 0.4em;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+    }
+
+    input {
+        padding: 0.4em;
+        width: 250px;
+        border-radius: .5em;
+        border: none;
+    }
+}
+
+.btnContainer {
+    display: flex;
+    justify-content: center;
+}
+
+button {
+    background: #dbcce9;
+    color: #000;
+    border: none;
+    padding: .6em 1.5em;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: .4em;
+}
+button:hover {
+    background: #fff;
+    color: #000;
+}

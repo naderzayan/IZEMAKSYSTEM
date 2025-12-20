@@ -1,0 +1,243 @@
+.invitorsPage {
+  background: #d9cbe5;
+  min-height: 100vh;
+  padding: 20px;
+  direction: rtl;
+
+  .pageHeader {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 1em;
+
+    .logo {
+      height: 100px;
+      width: 100px;
+      border: 1px solid #7A6B88;
+      background: #ede9f1;
+      border-radius: .5em;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 6em;
+
+      .search {
+        display: flex;
+        gap: .5em;
+        svg {
+          font-size: 20px;
+          transform: translate(-2rem,.5rem);
+        }
+      }
+
+      input {
+        border: 1px solid #000;
+        padding: 8px 12px;
+        padding-inline-start: 2em;
+        border-radius: .5em;
+        height: 2.5em;
+      }
+
+      button {
+        background: #7a6b88;
+        color: #fff;
+        height: 2.5em;
+        border: none;
+        padding: 8px 16px;
+        border-radius: .5em;
+        cursor: pointer;
+
+        &:hover {
+          border: 1px solid #000;
+          background: #d9cbe5;
+          color: #000;
+        }
+      }
+
+      select {
+        border: 1px solid #aaa;
+        padding: 8px 12px;
+        border-radius: .5em;
+        height: 2.5em;
+      }
+    }
+  }
+
+  .loading {
+    text-align: center;
+    font-size: 25px;
+    color: #7a6b88;
+  }
+
+  .invitorsTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    th,
+    td {
+      border: 1px solid #000;
+      padding: 10px;
+      text-align: center;
+    }
+
+    thead {
+      background: #7a6b88;
+      color: #fff;
+    }
+
+    .emptyRow {
+      padding: 20px;
+      text-align: center;
+      color: #000;
+    }
+    
+    .editBtn {
+      border: none;
+      background: none;
+      svg {
+        font-size: 20px;
+      }
+    }
+    .icons {
+      display: flex;
+      justify-content: center;
+      gap: 1.5em;
+    }
+    a {
+      color: #000;
+    }
+    .deleteBtn {
+      border: none;
+      background: none;
+      svg {
+        font-size: 20px;
+        color: #000;
+      }
+    }
+  }
+}
+
+.bottomActions {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 1000;
+
+  .addInvitorBtn a {
+    color: #000;
+  }
+  .addInvitorBtn:hover {
+    background-color: #d9cbe5;
+  }
+  .exportExcelBtn {
+    color: #000;
+    border-radius: 60%;
+    background-color: #7A6B88;
+  }
+  .exportExcelBtn:hover {
+    background-color: #d9cbe5;
+  }
+  .exportPdfBtn {
+    color: #000;
+    border-radius: 60%;
+    background-color: #7A6B88;
+  }
+  .exportPdfBtn:hover {
+    background-color: #d9cbe5;
+  }
+  .selectAllBtn {
+    color: #000;
+    border-radius: 60%;
+    background-color: #7A6B88;
+  }
+ .selectAllBtn:hover {
+  background-color: #d9cbe5;
+ }
+  .addInvitorBtn {
+    color: #000;
+    border-radius: 60%;
+    background-color: #7A6B88;
+  }
+  svg {
+    font-size: 20px;
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .show {
+    display: flex;
+  }
+}
+
+.confirmOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+
+  .confirmBox {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+
+    .changeStatus {
+      padding: .5em;
+      select {
+        height: 2.5em;
+        width: 100%;
+        border: 1px solid #333;
+        border-radius: .5em;
+      }
+    }
+
+    p {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .confirmBtns {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+
+      button {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+
+        &:first-child {
+          background: #7a6b88;
+          color: #fff;
+        }
+        &:last-child {
+          background: #7A6B88;
+          color: #fff;
+        }
+        &:hover {
+          background: #d9cbe5;
+          border: 1px solid #000;
+          color: #000;
+        }
+      }
+    }
+  }
+}
+
