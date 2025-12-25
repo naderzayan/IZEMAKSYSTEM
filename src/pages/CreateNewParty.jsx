@@ -124,6 +124,7 @@ export default function CreateNewParty() {
           placeholder="Invitation Text"
           value={invitationText}
           onChange={(e) => setInvitationText(e.target.value)}
+          className="invitationText"
         />
 
         <label className="uploadBtn">
